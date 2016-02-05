@@ -16,6 +16,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{1ED90044-616E-4111-9D89-30304B95F6E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{E40A6994-DA1D-4D20-BEE0-F77D0E08B442}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\Images\Banner.fw.png = Documentation\Images\Banner.fw.png
+		Documentation\Images\Logo.fw.png = Documentation\Images\Logo.fw.png
+		Documentation\Images\Logo.ico = Documentation\Images\Logo.ico
+		Documentation\Images\Logo1024x1024.png = Documentation\Images\Logo1024x1024.png
+		Documentation\Images\Logo128x128.png = Documentation\Images\Logo128x128.png
+		Documentation\Images\Logo256x256.png = Documentation\Images\Logo256x256.png
+		Documentation\Images\Logo32x32.png = Documentation\Images\Logo32x32.png
+		Documentation\Images\Logo512x512.png = Documentation\Images\Logo512x512.png
+		Documentation\Images\Logo64x64.png = Documentation\Images\Logo64x64.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +81,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0504B635-45AA-446B-9F65-E5808D786FCE} = {B462DD74-B0F4-403D-8EA2-BE897E73F68D}
+		{1ED90044-616E-4111-9D89-30304B95F6E8} = {562734C3-C004-465B-81C1-804800D72085}
+		{E40A6994-DA1D-4D20-BEE0-F77D0E08B442} = {1ED90044-616E-4111-9D89-30304B95F6E8}
 	EndGlobalSection
 EndGlobal
