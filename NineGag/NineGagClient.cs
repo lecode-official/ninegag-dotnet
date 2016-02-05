@@ -151,35 +151,39 @@ namespace NineGag
                     numberOfUpVotes = 0;
 
                 // Checks if the post is a video or an image post
-                PostKind postKind = PostKind.Unknown;
+                Nullable<bool> isImagePost = null;
                 IElement contentElement;
                 if ((contentElement = postElement.QuerySelector("video")) != null)
-                    postKind = PostKind.Video;
+                    isImagePost = false;
                 else if ((contentElement = postElement.QuerySelector("img")) != null)
-                    postKind = PostKind.Image;
+                    isImagePost = true;
 
-                // Gets the content and the thumbnail URI of the post
-                Uri contentUri = null, thumbnailUri = null;
-                if (postKind == PostKind.Video)
+                // Gets the content of the post
+                Post post;
+                if (isImagePost.HasValue && !isImagePost.Value)
                 {
-                    contentUri = new Uri(contentElement.Children.FirstOrDefault(child => child.GetAttribute("type") == "video/mp4").GetAttribute("src"), UriKind.Absolute);
-                    thumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute);
+                    post = new VideoPost
+                    {
+                        VideoUri = new Uri(contentElement.Children.FirstOrDefault(child => child.GetAttribute("type") == "video/mp4").GetAttribute("src"), UriKind.Absolute),
+                        ThumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute)
+                    };
                 }
-                else if (postKind == PostKind.Image)
+                else if (isImagePost.HasValue && isImagePost.Value)
                 {
-                    contentUri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute);
+                    post = new ImagePost { PictureUri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute) };
+                }
+                else
+                {
+                    post = new Post();
                 }
 
-                // Creates the post and adds it to the result set
-                posts.Add(new Post
-                {
-                    Title = postElement.QuerySelector("header").TextContent.Trim(),
-                    NumberOfComments = numberOfComments,
-                    NumberOfUpVotes = numberOfUpVotes,
-                    Kind = postKind,
-                    ContentUri = contentUri,
-                    ThumbnailUri = thumbnailUri
-                });
+                // Sets the general information of the post
+                post.Title = postElement.QuerySelector("header").TextContent.Trim();
+                post.NumberOfComments = numberOfComments;
+                post.NumberOfUpVotes = numberOfUpVotes;
+
+                // Adds the newly created post to the result set
+                posts.Add(post);
             }
 
             // Parses the URI of the next page to retrieve the ID of the next page as well as the number of posts to retrieve
