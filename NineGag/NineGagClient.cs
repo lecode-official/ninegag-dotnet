@@ -184,6 +184,7 @@ namespace NineGag
                 }
 
                 // Sets the general information of the post
+                post.Id = postElement.HasAttribute("data-entry-id") ? postElement.GetAttribute("data-entry-id") : string.Empty;
                 post.Title = postElement.QuerySelector("header").TextContent.Trim();
                 post.NumberOfComments = numberOfComments;
                 post.NumberOfUpVotes = numberOfUpVotes;

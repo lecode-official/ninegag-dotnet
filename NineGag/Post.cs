@@ -9,6 +9,11 @@ namespace NineGag
         #region Public Properties
 
         /// <summary>
+        /// Gets or sets the ID of the post.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
         /// Gets or sets the title of the post.
         /// </summary>
         public string Title { get; internal set; }
