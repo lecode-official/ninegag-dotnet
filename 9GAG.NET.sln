@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{E40A6994-DA1D-4D20-BEE0-F77D0E08B442}"
 	ProjectSection(SolutionItems) = preProject
-		Documentation\Images\Banner.fw.png = Documentation\Images\Banner.fw.png
+		Documentation\Images\Banner.png = Documentation\Images\Banner.png
 		Documentation\Images\Logo.fw.png = Documentation\Images\Logo.fw.png
 		Documentation\Images\Logo.ico = Documentation\Images\Logo.ico
 		Documentation\Images\Logo1024x1024.png = Documentation\Images\Logo1024x1024.png
