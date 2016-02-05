@@ -7,4 +7,4 @@
 >
 > &mdash; [Wikipedia.org](https://en.wikipedia.org/wiki/9GAG)
 
-9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG posts.
+9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages.
