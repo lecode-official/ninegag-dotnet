@@ -151,16 +151,18 @@ namespace NineGag
                     numberOfUpVotes = 0;
 
                 // Checks if the post is a video or an image post
-                Nullable<bool> isImagePost = null;
+                PostKind postKind = PostKind.Unknown;
                 IElement contentElement;
                 if ((contentElement = postElement.QuerySelector("video")) != null)
-                    isImagePost = false;
+                    postKind = PostKind.Video;
                 else if ((contentElement = postElement.QuerySelector("img")) != null)
-                    isImagePost = true;
+                    postKind = PostKind.Image;
+                else if (postElement.QuerySelector(".nsfw-post") != null)
+                    postKind = PostKind.NotSafeForWork;
 
                 // Gets the content of the post
                 Post post;
-                if (isImagePost.HasValue && !isImagePost.Value)
+                if (postKind == PostKind.Video)
                 {
                     post = new VideoPost
                     {
@@ -168,13 +170,17 @@ namespace NineGag
                         ThumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute)
                     };
                 }
-                else if (isImagePost.HasValue && isImagePost.Value)
+                else if (postKind == PostKind.Image)
                 {
                     post = new ImagePost { PictureUri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute) };
                 }
+                else if (postKind == PostKind.NotSafeForWork)
+                {
+                    post = new NotSafeForWorkPost();
+                }
                 else
                 {
-                    post = new Post();
+                    post = new UnknownPost();
                 }
 
                 // Sets the general information of the post

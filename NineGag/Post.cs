@@ -2,9 +2,9 @@
 namespace NineGag
 {
     /// <summary>
-    /// Represents the base class for all kinds of posts offered by 9GAG.
+    /// Represents the abstract base class for all kinds of posts offered by 9GAG.
     /// </summary>
-    public class Post
+    public abstract class Post
     {
         #region Public Properties
 
