@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ContentKind.cs" />
     <Compile Include="ImagePost.cs" />
     <Compile Include="NineGagClient.cs" />
     <Compile Include="NotSafeForWorkPost.cs" />
@@ -44,7 +45,7 @@
     <Compile Include="Section.cs" />
     <Compile Include="SectionKind.cs" />
     <Compile Include="UnknownPost.cs" />
-    <Compile Include="VideoContent.cs" />
+    <Compile Include="Content.cs" />
     <Compile Include="VideoPost.cs" />
   </ItemGroup>
   <ItemGroup>

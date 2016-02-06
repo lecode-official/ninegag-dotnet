@@ -9,21 +9,21 @@ using System;
 namespace NineGag
 {
     /// <summary>
-    /// Represents a content of a video post.
+    /// Represents a content of a post.
     /// </summary>
-    public class VideoContent
+    public class Content
     {
         #region Public Properties
 
         /// <summary>
-        /// Gets the URI of the video.
+        /// Gets the URI of the content.
         /// </summary>
         public Uri Uri { get; internal set; }
 
         /// <summary>
-        /// Gets or sets the MIME type of the video.
+        /// Gets or sets the kind of the content.
         /// </summary>
-        public string MimeType { get; internal set; }
+        public ContentKind Kind { get; internal set; }
 
         #endregion
     }
