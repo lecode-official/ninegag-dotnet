@@ -2,6 +2,7 @@
 #region Using Directives
 
 using System;
+using System.Collections.Generic;
 
 #endregion
 
@@ -17,7 +18,7 @@ namespace NineGag
         /// <summary>
         /// Gets the URI of the MP4 video content of the post.
         /// </summary>
-        public Uri VideoUri { get; internal set; }
+        public IEnumerable<VideoContent> Content { get; internal set; }
 
         /// <summary>
         /// Gets the URI of the thumbnail of the video.

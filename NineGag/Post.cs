@@ -11,7 +11,7 @@ namespace NineGag
         /// <summary>
         /// Gets or sets the ID of the post.
         /// </summary>
-        public string Id { get; set; }
+        public string Id { get; internal set; }
 
         /// <summary>
         /// Gets or sets the title of the post.

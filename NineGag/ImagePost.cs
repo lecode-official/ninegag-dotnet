@@ -17,7 +17,7 @@ namespace NineGag
         /// <summary>
         /// Gets the URI of picture content of the post.
         /// </summary>
-        public Uri PictureUri { get; internal set; }
+        public Uri ContentUri { get; internal set; }
         
         #endregion
     }

@@ -166,13 +166,17 @@ namespace NineGag
                 {
                     post = new VideoPost
                     {
-                        VideoUri = new Uri(contentElement.Children.FirstOrDefault(child => child.GetAttribute("type") == "video/mp4").GetAttribute("src"), UriKind.Absolute),
+                        Content = contentElement.GetElementsByTagName("source").Select(child => new VideoContent
+                        {
+                            Uri = new Uri(child.GetAttribute("src"), UriKind.Absolute),
+                            MimeType = child.GetAttribute("type")
+                        }).ToList(),
                         ThumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute)
                     };
                 }
                 else if (postKind == PostKind.Image)
                 {
-                    post = new ImagePost { PictureUri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute) };
+                    post = new ImagePost { ContentUri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute) };
                 }
                 else if (postKind == PostKind.NotSafeForWork)
                 {
