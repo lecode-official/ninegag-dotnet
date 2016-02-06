@@ -185,7 +185,8 @@ namespace NineGag
                                 Uri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute),
                                 Kind = ContentKind.Jpeg
                             }
-                        }
+                        },
+                        IsLongPost = contentElement.GetAttribute("src").ToUpperInvariant().Contains("LONG-POST")
                     };
                 }
                 else if (postKind == PostKind.NotSafeForWork)
