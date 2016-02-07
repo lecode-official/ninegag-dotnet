@@ -4,7 +4,7 @@
 
 > *"9GAG has the best funny pics, GIFs, videos, memes, cute, wtf, geeky, cosplay photos on the web. 9GAG is your best source of fun."*
 >
-> &mdash; [Wikipedia.org](http://9gag.com/)
+> &mdash; [9GAG.com](http://9gag.com/)
 
 9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages. Since 9GAG does not seem to have an official API,
 this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes
