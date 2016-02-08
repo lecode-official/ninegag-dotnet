@@ -19,7 +19,7 @@ namespace NineGag
     /// <summary>
     /// Represents the 9GAG client, which can be used to access 9GAG and get raw data from it.
     /// </summary>
-    public class NineGagClient
+    public class NineGagClient : IDisposable
     {
         #region Private Static Fields
 
@@ -46,6 +46,15 @@ namespace NineGag
         /// Contains an HTML parser, which is used to parse the HTML retrieved from the 9GAG website.
         /// </summary>
         private readonly HtmlParser htmlParser = new HtmlParser();
+
+        #endregion
+
+        #region Public Properties
+
+        /// <summary>
+        /// Gets a value that determines whether the <see cref="NineGagClient"/> has already been disposed of.
+        /// </summary>
+        public bool IsDisposed { get; private set; }
 
         #endregion
 
@@ -252,6 +261,44 @@ namespace NineGag
         /// <param name="section">The section for which the posts are to be retrieved.</param>
         /// <returns>Returns the fist page of posts of the specified section.</returns>
         public Task<Page> GetPostsAsync(Section section) => this.GetPostsAsync(section, new CancellationTokenSource().Token);
+
+        #endregion
+
+        #region IDisposable Implementation
+
+        /// <summary>
+        /// Disposes of the resources acquired by the <see cref="NineGagClient"/>.
+        /// </summary>
+        public void Dispose()
+        {
+            // Calls the dispose method, which can be overridden by sub-classes to dispose of further resources
+            Dispose(true);
+
+            // Suppresses the finalization of this object by the garbage collector, because the resources have already been disposed of
+            GC.SuppressFinalize(this);
+        }
+        
+        /// <summary>
+        /// Disposes of all the resources acquired by the <see cref="NineGagClient"/>. This method can be overridden by sub-classes to dispose of further resources.
+        /// </summary>
+        /// <param name="disposingManagedResources">Determines whether managed resources should be disposed of or only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposingManagedResources)
+        {
+            // Checks if the 9GAG client has already been disposed of
+            if (this.IsDisposed)
+                throw new ObjectDisposedException("The 9GAG client has already been disposed of.");
+            this.IsDisposed = true;
+
+            // Checks if unmanaged resources should be disposed of
+            if (disposingManagedResources)
+            {
+                // Checks if the HTTP client has already been disposed of, if not then it is disposed of
+                if (this.httpClient != null)
+                {
+                    this.httpClient.Dispose();
+                }
+            }
+        }
 
         #endregion
     }
