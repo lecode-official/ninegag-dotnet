@@ -20,11 +20,6 @@ solution in Visual Studio, and build it.
 git pull https://github.com/lecode-official/ninegag-dotnet.git
 ```
 
-## Contributions
-
-Currently I am not accepting any contributors, but if you want to help, I would greatly appreciate feedback and bug reports. To file a bug, please
-use GitHub's issue system. Alternatively, you can clone the repository and send us a pull request.
-
 ## Sample
 
 This is how it is to retrieve pages and posts from 9GAG:
@@ -57,3 +52,8 @@ using (NineGagClient nineGagClient = new NineGagClient())
     System.Console.ReadKey();
 }
 ```
+
+## Contributions
+
+Currently I am not accepting any contributors, but if you want to help, I would greatly appreciate feedback and bug reports. To file a bug, please
+use GitHub's issue system. Alternatively, you can clone the repository and send us a pull request.
