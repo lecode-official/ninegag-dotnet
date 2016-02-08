@@ -229,6 +229,9 @@ namespace NineGag
             if (!int.TryParse(match.Groups["Count"].Value, out numberOfPostsToRetrieve))
                 numberOfPostsToRetrieve = 10;
 
+            // Fetches the details of the all the posts
+            await Task.WhenAll(posts.Select(post => post.FetchDetailsAsync(this.httpClient, cancellationToken)));
+
             // Returns the result set, which contains all the posts
             return new Page
             {
