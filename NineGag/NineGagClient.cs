@@ -26,12 +26,7 @@ namespace NineGag
         /// Contains the 9GAG base URI.
         /// </summary>
         private static readonly Uri baseUri = new Uri("http://9gag.com", UriKind.Absolute);
-
-        /// <summary>
-        /// Contains a regular expression, which detects non-numeric characters. This can be used to filter non-numeric characters from a string to retrieve an integer.
-        /// </summary>
-        private static readonly Regex numericFilterRegex = new Regex("[^0-9]");
-
+        
         /// <summary>
         /// Contains a regular expression, which is used to parse the URI for the next page and extract the ID of the next page and the number of posts to retrieve.
         /// </summary>
@@ -140,45 +135,40 @@ namespace NineGag
 
             // Gets all the posts, parses them and them to the result set
             List<Post> posts = new List<Post>();
-            IHtmlCollection<IElement> postElements = htmlDocument.QuerySelectorAll("article");
-            foreach (IElement postElement in postElements)
+            try
             {
-                // Parses the number of comments and the number of up-votes
-                int numberOfComments, numberOfUpVotes;
-                if (!int.TryParse(NineGagClient.numericFilterRegex.Replace(postElement.QuerySelector(".comment").TextContent.Trim(), string.Empty), out numberOfComments))
-                    numberOfComments = 0;
-                if (!int.TryParse(NineGagClient.numericFilterRegex.Replace(postElement.QuerySelector(".badge-item-love-count").TextContent.Trim(), string.Empty), out numberOfUpVotes))
-                    numberOfUpVotes = 0;
-
-                // Checks if the post is a video or an image post
-                PostKind postKind = PostKind.Unknown;
-                IElement contentElement;
-                if ((contentElement = postElement.QuerySelector("video")) != null)
-                    postKind = PostKind.Video;
-                else if ((contentElement = postElement.QuerySelector("img")) != null)
-                    postKind = PostKind.Image;
-                else if (postElement.QuerySelector(".nsfw-post") != null)
-                    postKind = PostKind.NotSafeForWork;
-
-                // Gets the content of the post
-                Post post;
-                if (postKind == PostKind.Video)
+                IHtmlCollection<IElement> postElements = htmlDocument.QuerySelectorAll("article");
+                foreach (IElement postElement in postElements)
                 {
-                    post = new VideoPost
+                    // Checks if the post is a video or an image post
+                    PostKind postKind = PostKind.Unknown;
+                    IElement contentElement;
+                    if ((contentElement = postElement.QuerySelector("video")) != null)
+                        postKind = PostKind.Video;
+                    else if ((contentElement = postElement.QuerySelector("img")) != null)
+                        postKind = PostKind.Image;
+                    else if (postElement.QuerySelector(".nsfw-post") != null)
+                        postKind = PostKind.NotSafeForWork;
+
+                    // Gets the content of the post
+                    Post post;
+                    if (postKind == PostKind.Video)
                     {
-                        Content = contentElement.GetElementsByTagName("source").Select(child => new Content
+                        post = new VideoPost
                         {
-                            Uri = new Uri(child.GetAttribute("src"), UriKind.Absolute),
-                            Kind = child.GetAttribute("type").ToUpperInvariant() == "VIDEO/MP4" ? ContentKind.Mp4 : ContentKind.WebM
-                        }).ToList(),
-                        ThumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute)
-                    };
-                }
-                else if (postKind == PostKind.Image)
-                {
-                    post = new ImagePost
+                            Content = contentElement.GetElementsByTagName("source").Select(child => new Content
+                            {
+                                Uri = new Uri(child.GetAttribute("src"), UriKind.Absolute),
+                                Kind = child.GetAttribute("type").ToUpperInvariant() == "VIDEO/MP4" ? ContentKind.Mp4 : ContentKind.WebM
+                            }).ToList(),
+                            ThumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute)
+                        };
+                    }
+                    else if (postKind == PostKind.Image)
                     {
-                        Content = new List<Content>
+                        post = new ImagePost
+                        {
+                            Content = new List<Content>
                         {
                             new Content
                             {
@@ -186,27 +176,32 @@ namespace NineGag
                                 Kind = ContentKind.Jpeg
                             }
                         },
-                        IsLongPost = contentElement.GetAttribute("src").ToUpperInvariant().Contains("LONG-POST")
-                    };
-                }
-                else if (postKind == PostKind.NotSafeForWork)
-                {
-                    post = new NotSafeForWorkPost();
-                }
-                else
-                {
-                    post = new UnknownPost();
-                }
+                            IsLongPost = contentElement.GetAttribute("src").ToUpperInvariant().Contains("LONG-POST")
+                        };
+                    }
+                    else if (postKind == PostKind.NotSafeForWork)
+                    {
+                        post = new NotSafeForWorkPost();
+                    }
+                    else
+                    {
+                        post = new UnknownPost();
+                    }
 
-                // Sets the general information of the post
-                post.Id = postElement.HasAttribute("data-entry-id") ? postElement.GetAttribute("data-entry-id") : string.Empty;
-                post.Title = postElement.QuerySelector("header").TextContent.Trim();
-                post.NumberOfComments = numberOfComments;
-                post.NumberOfUpVotes = numberOfUpVotes;
+                    // Sets the general information of the post
+                    post.Id = postElement.GetAttribute("data-entry-id");
+                    post.Title = postElement.QuerySelector("header").TextContent.Trim();
+                    int numberOfComments, numberOfUpVotes;
+                    int.TryParse(postElement.GetAttribute("data-entry-comments").Trim(), out numberOfComments);
+                    int.TryParse(postElement.GetAttribute("data-entry-votes").Trim(), out numberOfUpVotes);
+                    post.NumberOfComments = numberOfComments;
+                    post.NumberOfUpVotes = numberOfUpVotes;
 
-                // Adds the newly created post to the result set
-                posts.Add(post);
+                    // Adds the newly created post to the result set
+                    posts.Add(post);
+                }
             }
+            catch (Exception) { }
 
             // Parses the URI of the next page to retrieve the ID of the next page as well as the number of posts to retrieve
             string uriQuery = htmlDocument.QuerySelector("a.badge-load-more-post").GetAttribute("href").Trim();
