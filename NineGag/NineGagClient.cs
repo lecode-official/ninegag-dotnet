@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 #endregion
@@ -53,14 +54,15 @@ namespace NineGag
         /// <summary>
         /// Gets all the sections of 9GAG. Sections are like categories and contain the actual content.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the sections.</param>
         /// <returns>Returns a list of all the sections that are currently available on 9GAG.</returns>
-        public async Task<IEnumerable<Section>> GetSectionsAsync()
+        public async Task<IEnumerable<Section>> GetSectionsAsync(CancellationToken cancellationToken)
         {
             // Creates a new list for the result set of sections
             List<Section> sections = new List<Section>();
 
             // Gets the main page of the 9GAG website
-            HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.baseUri);
+            HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.baseUri, cancellationToken);
             string responseMessageContent = await responseMessage.Content.ReadAsStringAsync();
 
             // Parses the HTML of the 9GAG main page
@@ -106,18 +108,25 @@ namespace NineGag
                     RelativeUri = NineGagClient.baseUri.MakeRelativeUri(new Uri(otherSection.GetAttribute("href"), UriKind.Absolute))
                 });
             }
-
+            
             // Returns the parsed sections
             return sections;
         }
+
+        /// <summary>
+        /// Gets all the sections of 9GAG. Sections are like categories and contain the actual content.
+        /// </summary>
+        /// <returns>Returns a list of all the sections that are currently available on 9GAG.</returns>
+        public Task<IEnumerable<Section>> GetSectionsAsync() => this.GetSectionsAsync(new CancellationTokenSource().Token);
 
         /// <summary>
         /// Gets the page of posts for the specified section and the next page of the specfied page.
         /// </summary>
         /// <param name="section">The section for which the posts are to be retrieved.</param>
         /// <param name="page">The page before the page that is to be retrieved.</param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the page.</param>
         /// <returns>Returns the page of posts from the page after the specified page of the specified section.</returns>
-        public async Task<Page> GetPostsAsync(Section section, Page page)
+        public async Task<Page> GetPostsAsync(Section section, Page page, CancellationToken cancellationToken)
         {
             // Builds the absolute URI for the section
             Uri absoluteUri;
@@ -127,7 +136,7 @@ namespace NineGag
                 absoluteUri = new Uri(NineGagClient.baseUri, $"{section.RelativeUri.OriginalString}/?id={page.NextPageId}&c={page.NumberOfPostsToRetrieve}");
 
             // Gets the page of the 9GAG website for the specified section
-            HttpResponseMessage responseMessage = await this.httpClient.GetAsync(absoluteUri);
+            HttpResponseMessage responseMessage = await this.httpClient.GetAsync(absoluteUri, cancellationToken);
             string responseMessageContent = await responseMessage.Content.ReadAsStringAsync();
 
             // Parses the HTML of the section page
@@ -222,11 +231,27 @@ namespace NineGag
         }
 
         /// <summary>
+        /// Gets the page of posts for the specified section and the next page of the specfied page.
+        /// </summary>
+        /// <param name="section">The section for which the posts are to be retrieved.</param>
+        /// <param name="page">The page before the page that is to be retrieved.</param>
+        /// <returns>Returns the page of posts from the page after the specified page of the specified section.</returns>
+        public Task<Page> GetPostsAsync(Section section, Page page) => this.GetPostsAsync(section, page, new CancellationTokenSource().Token);
+
+        /// <summary>
+        /// Gets the first page of posts for the specified section.
+        /// </summary>
+        /// <param name="section">The section for which the posts are to be retrieved.</param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the page.</param>
+        /// <returns>Returns the fist page of posts of the specified section.</returns>
+        public Task<Page> GetPostsAsync(Section section, CancellationToken cancellationToken) => this.GetPostsAsync(section, null, cancellationToken);
+
+        /// <summary>
         /// Gets the first page of posts for the specified section.
         /// </summary>
         /// <param name="section">The section for which the posts are to be retrieved.</param>
         /// <returns>Returns the fist page of posts of the specified section.</returns>
-        public Task<Page> GetPostsAsync(Section section) => this.GetPostsAsync(section, null);
+        public Task<Page> GetPostsAsync(Section section) => this.GetPostsAsync(section, new CancellationTokenSource().Token);
 
         #endregion
     }
