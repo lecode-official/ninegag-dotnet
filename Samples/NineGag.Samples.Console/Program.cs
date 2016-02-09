@@ -27,31 +27,38 @@ namespace NineGag.Samples.Console
         /// </summary>
         public static async Task MainAsync()
         {
-            // Creates a new 9GAG client to access the 9GAG posts
-            using (NineGagClient nineGagClient = new NineGagClient())
+            // Creates a new 9GAG client and tries to access the 9GAG posts
+            try
             {
-                // Gets the first two pages of 9GAG
-                IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
-                Section hotSection = sections.FirstOrDefault(section => section.Kind == SectionKind.Hot);
-                List<Page> pages = new List<Page>();
-                pages.Add(await nineGagClient.GetPostsAsync(hotSection));
-                pages.Add(await nineGagClient.GetPostsAsync(hotSection, pages.Last()));
-
-                // Prints all the retrieved pages
-                foreach (Page page in pages)
+                using (NineGagClient nineGagClient = new NineGagClient())
                 {
-                    System.Console.WriteLine();
-                    System.Console.WriteLine($"Page {pages.IndexOf(page) + 1}");
-                    System.Console.WriteLine();
+                    // Gets the first two pages of 9GAG
+                    IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
+                    Section hotSection = sections.FirstOrDefault(section => section.Kind == SectionKind.Hot);
+                    List<Page> pages = new List<Page>();
+                    pages.Add(await nineGagClient.GetPostsAsync(hotSection));
+                    pages.Add(await nineGagClient.GetPostsAsync(hotSection, pages.Last()));
 
-                    foreach (Post post in page.Posts)
-                        System.Console.WriteLine(post.Title);
+                    // Prints all the retrieved pages
+                    foreach (Page page in pages)
+                    {
+                        System.Console.WriteLine();
+                        System.Console.WriteLine($"Page {pages.IndexOf(page) + 1}");
+                        System.Console.WriteLine();
+
+                        foreach (Post post in page.Posts)
+                            System.Console.WriteLine(post.Title);
+                    }
+
+                    // Waits for a key stroke before the application is quit
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Press any key to exit...");
+                    System.Console.ReadKey();
                 }
-
-                // Waits for a key stroke before the application is quit
-                System.Console.WriteLine();
-                System.Console.WriteLine("Press any key to exit...");
-                System.Console.ReadKey();
+            }
+            catch (NineGagException exception)
+            {
+                System.Console.WriteLine($"An error occurred, while retrieving the 9GAG posts: '{exception.Message}'.");
             }
         }
 

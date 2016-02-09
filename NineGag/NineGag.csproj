@@ -37,6 +37,7 @@
     <Compile Include="ContentKind.cs" />
     <Compile Include="ImagePost.cs" />
     <Compile Include="NineGagClient.cs" />
+    <Compile Include="NineGagException.cs" />
     <Compile Include="NotSafeForWorkPost.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="Post.cs" />

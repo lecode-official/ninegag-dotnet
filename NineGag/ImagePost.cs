@@ -30,17 +30,25 @@ namespace NineGag
         /// Parses the detail information of the post.
         /// </summary>
         /// <param name="htmlDocument">The HTML document, which contains the details page of the post.</param>
+        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the details, an <see cref="NineGagException"/> exception is thrown.</exception>
         protected override void ParseDetailInformation(IHtmlDocument htmlDocument)
         {
-            // Parses the larger version of the image
-            this.Content = this.Content.Union(new List<Content>
+            // Tries to parse the the larger version of the image, if could not be parsed, then an exception is thrown
+            try
             {
-                new Content
+                this.Content = this.Content.Union(new List<Content>
                 {
-                    Uri = new Uri(htmlDocument.QuerySelector("article img").GetAttribute("src"), UriKind.Absolute),
-                    Kind = ContentKind.Jpeg
-                }
-            }).ToList();
+                    new Content
+                    {
+                        Uri = new Uri(htmlDocument.QuerySelector("article img").GetAttribute("src"), UriKind.Absolute),
+                        Kind = ContentKind.Jpeg
+                    }
+                }).ToList();
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The larger version of the content of the image post could not be retrieved. Maybe there is no internet connection available.", exception);
+            }
         }
 
         #endregion

@@ -62,16 +62,34 @@ namespace NineGag
         /// Fetches the detail information about the post.
         /// </summary>
         /// <param name="httpClient">The HTTP client, which is used to fetch the detail information.</param>
+        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the details, an <see cref="NineGagException"/> exception is thrown.</exception>
         internal async Task FetchDetailsAsync(HttpClient httpClient, CancellationToken cancellationToken)
         {
-            // Gets the details page of the post from the 9GAG website
-            HttpResponseMessage responseMessage = await httpClient.GetAsync(new Uri(Post.postBaseUri, this.Id), cancellationToken);
-            string responseMessageContent = await responseMessage.Content.ReadAsStringAsync();
+            // Tries to get the details page of the 9GAG post, if it could not be retrieved, then an exception is thrown
+            string nineGagPostDetailsPageContent;
+            try
+            {
+                HttpResponseMessage responseMessage = await httpClient.GetAsync(new Uri(Post.postBaseUri, this.Id), cancellationToken);
+                nineGagPostDetailsPageContent = await responseMessage.Content.ReadAsStringAsync();
 
-            // Parses the HTML of the 9GAG post detail page
-            HtmlParser htmlParser = new HtmlParser();
-            IHtmlDocument htmlDocument = await htmlParser.ParseAsync(responseMessageContent);
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The 9GAG post details page could not be retrieved. Maybe there is no internet connection available.", exception);
+            }
 
+            // Tries to parse the HTML of the 9GAG post details page, if the HTML could not be parsed, then an exception is thrown
+            IHtmlDocument htmlDocument;
+            try
+            {
+                HtmlParser htmlParser = new HtmlParser();
+                htmlDocument = await htmlParser.ParseAsync(nineGagPostDetailsPageContent);
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The HTML of the 9GAG post details page could not be parsed. This could be an indicator, that the 9GAG website is down or its content has changed. If this problem keeps coming, then please report this problem to 9GAG or the maintainer of the library.", exception);
+            }
+            
             // Calls the parsing methods of the sub-classes to retrieve the detail information
             this.ParseDetailInformation(htmlDocument);
         }
