@@ -76,6 +76,7 @@ namespace NineGag
             try
             {
                 HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.baseUri, cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
                 nineGagMainPageContent = await responseMessage.Content.ReadAsStringAsync();
             }
             catch (Exception exception)
@@ -189,6 +190,7 @@ namespace NineGag
             try
             {
                 HttpResponseMessage responseMessage = await this.httpClient.GetAsync(absoluteUri, cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
                 nineGagSectionPageContent = await responseMessage.Content.ReadAsStringAsync();
             }
             catch (Exception exception)

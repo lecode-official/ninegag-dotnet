@@ -70,6 +70,7 @@ namespace NineGag
             try
             {
                 HttpResponseMessage responseMessage = await httpClient.GetAsync(new Uri(Post.postBaseUri, this.Id), cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
                 nineGagPostDetailsPageContent = await responseMessage.Content.ReadAsStringAsync();
 
             }
