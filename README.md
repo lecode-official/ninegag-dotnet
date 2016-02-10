@@ -31,8 +31,7 @@ try
     using (NineGagClient nineGagClient = new NineGagClient())
     {
         // Gets the first two pages of 9GAG
-        IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
-        Section hotSection = sections.FirstOrDefault(section => section.Kind == SectionKind.Hot);
+        Section hotSection = (await nineGagClient.GetSectionsAsync()).FirstOrDefault(section => section.Kind == SectionKind.Hot);
         List<Page> pages = new List<Page>();
         pages.Add(await nineGagClient.GetPostsAsync(hotSection));
         pages.Add(await nineGagClient.GetPostsAsync(hotSection, pages.Last()));
@@ -58,4 +57,4 @@ catch (NineGagException exception)
 ## Contributions
 
 Currently I am not accepting any contributors, but if you want to help, I would greatly appreciate feedback and bug reports. To file a bug, please
-use GitHub's issue system. Alternatively, you can clone the repository and send us a pull request.
+use GitHub's issue system. Alternatively, you can clone the repository and send me a pull request.

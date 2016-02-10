@@ -33,8 +33,7 @@ namespace NineGag.Samples.Console
                 using (NineGagClient nineGagClient = new NineGagClient())
                 {
                     // Gets the first two pages of 9GAG
-                    IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
-                    Section hotSection = sections.FirstOrDefault(section => section.Kind == SectionKind.Hot);
+                    Section hotSection = (await nineGagClient.GetSectionsAsync()).FirstOrDefault(section => section.Kind == SectionKind.Hot);
                     List<Page> pages = new List<Page>();
                     pages.Add(await nineGagClient.GetPostsAsync(hotSection));
                     pages.Add(await nineGagClient.GetPostsAsync(hotSection, pages.Last()));
