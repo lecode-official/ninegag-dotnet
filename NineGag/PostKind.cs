@@ -19,11 +19,6 @@ namespace NineGag
         /// <summary>
         /// The post is a video post.
         /// </summary>
-        Video,
-
-        /// <summary>
-        /// The post is not safe for work (contains explicit content, the user has to sign in to view the content).
-        /// </summary>
-        NotSafeForWork
+        Video
     }
 }

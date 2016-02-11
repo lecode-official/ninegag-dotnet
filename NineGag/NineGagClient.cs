@@ -267,12 +267,14 @@ namespace NineGag
                 foreach (IElement postElement in postElements)
                 {
                     // Checks if the post is a video or an image post
-                    PostKind postKind = PostKind.Unknown;
+                    PostKind postKind;
                     IElement contentElement;
                     if ((contentElement = postElement.QuerySelector("video")) != null)
                         postKind = PostKind.Video;
                     else if ((contentElement = postElement.QuerySelector("img")) != null)
                         postKind = PostKind.Image;
+                    else
+                        postKind = PostKind.Unknown;
 
                     // Gets the content of the post
                     Post post;

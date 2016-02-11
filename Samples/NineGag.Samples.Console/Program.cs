@@ -61,6 +61,9 @@ namespace NineGag.Samples.Console
                     System.Console.WriteLine();
                     System.Console.WriteLine("Press any key to exit...");
                     System.Console.ReadKey();
+
+                    // Signs the user out
+                    await nineGagClient.SignOutAsync();
                 }
             }
             catch (NineGagException exception)
