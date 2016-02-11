@@ -32,6 +32,14 @@ namespace NineGag.Samples.Console
             {
                 using (NineGagClient nineGagClient = new NineGagClient())
                 {
+                    // Signs the user in
+                    System.Console.Write("Email address: ");
+                    string emailAddress = System.Console.ReadLine();
+                    System.Console.Write("Password: ");
+                    string password = System.Console.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(emailAddress) && !string.IsNullOrWhiteSpace(password))
+                        await nineGagClient.SignInAsync(emailAddress, password);
+
                     // Gets the first two pages of 9GAG
                     Section hotSection = (await nineGagClient.GetSectionsAsync()).FirstOrDefault(section => section.Kind == SectionKind.Hot);
                     List<Page> pages = new List<Page>();

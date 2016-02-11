@@ -7,6 +7,7 @@ using AngleSharp.Parser.Html;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -21,13 +22,32 @@ namespace NineGag
     /// </summary>
     public class NineGagClient : IDisposable
     {
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new <see cref="NineGagClient"/> instance.
+        /// </summary>
+        public NineGagClient()
+        {
+            // Creates a new cookie container as well as the HTTP client, which are used to communicate with the 9GAG server
+            this.cookieContainer = new CookieContainer();
+            this.httpClient = new HttpClient(new HttpClientHandler { CookieContainer = cookieContainer });
+        }
+
+        #endregion
+
         #region Private Static Fields
 
         /// <summary>
         /// Contains the 9GAG base URI.
         /// </summary>
         private static readonly Uri baseUri = new Uri("http://9gag.com", UriKind.Absolute);
-        
+
+        /// <summary>
+        /// Contains the URI where users are able to sign in to 9GAG.
+        /// </summary>
+        private static readonly Uri signInUri = new Uri("https://9gag.com/login", UriKind.Absolute);
+
         /// <summary>
         /// Contains a regular expression, which is used to parse the URI for the next page and extract the ID of the next page and the number of posts to retrieve.
         /// </summary>
@@ -38,9 +58,14 @@ namespace NineGag
         #region Private Fields
 
         /// <summary>
+        /// Contains the cookie container for the HTTP client, which can be used to receive server cookies as well as send cookies to the server.
+        /// </summary>
+        private readonly CookieContainer cookieContainer;
+
+        /// <summary>
         /// Contains an HTTP client, which is used to call the 9GAG website.
         /// </summary>
-        private readonly HttpClient httpClient = new HttpClient();
+        private readonly HttpClient httpClient;
 
         /// <summary>
         /// Contains an HTML parser, which is used to parse the HTML retrieved from the 9GAG website.
@@ -55,6 +80,11 @@ namespace NineGag
         /// Gets a value that determines whether the <see cref="NineGagClient"/> has already been disposed of.
         /// </summary>
         public bool IsDisposed { get; private set; }
+
+        /// <summary>
+        /// Gets a value, which determines whether the user is signed in or not.
+        /// </summary>
+        public bool IsUserSignedIn { get; private set; }
 
         #endregion
 
@@ -339,6 +369,94 @@ namespace NineGag
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
         /// <returns>Returns the fist page of posts of the specified section.</returns>
         public Task<Page> GetPostsAsync(Section section) => this.GetPostsAsync(section, new CancellationTokenSource().Token);
+
+        /// <summary>
+        /// Signs the user in to 9GAG and makes it possible to view "not safe for work" posts, as well as comment on posts and upvote posts.
+        /// </summary>
+        /// <param name="emailAddress">The email address of the user, which is the user name used for the sign in.</param>
+        /// <param name="password">The password of the user, which is used for the sign in.</param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the sign in process.</param>
+        /// <returns>Returns a value that determines whether the sign in process was successful.</returns>
+        public async Task<bool> SignInAsync(string emailAddress, string password, CancellationToken cancellationToken)
+        {
+            // Tries to get the sign in page of the 9GAG website, if it could not be retrieved, then an exception is thrown
+            string nineGagSignInPageContent;
+            try
+            {
+                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.signInUri, cancellationToken);
+                nineGagSignInPageContent = await responseMessage.Content.ReadAsStringAsync();
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The 9GAG sign in page could not be retrieved. Maybe there is no internet connection available.", exception);
+            }
+
+            // Tries to parse the HTML of the 9GAG sing in page, if the HTML could not be parsed, then an exception is thrown
+            IHtmlDocument htmlDocument;
+            try
+            {
+                htmlDocument = await this.htmlParser.ParseAsync(nineGagSignInPageContent);
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The HTML of the 9GAG sing in page could not be parsed. This could be an indicator, that the 9GAG website is down or its content has changed. If this problem keeps coming, then please report this problem to 9GAG or the maintainer of the library.", exception);
+            }
+
+            // Tries to parse the sign in form, which contains the fields, which are needed to sign in the user, if the sign in form could not be parsed, then an exception is thrown
+            string crossSiteRequestForgeryToken, nextUrl, location;
+            try
+            {
+                IElement signInForm = htmlDocument.QuerySelector("#login-email");
+                crossSiteRequestForgeryToken = signInForm.QuerySelector("#jsid-login-form-csrftoken").GetAttribute("value");
+                nextUrl = signInForm.QuerySelector("#jsid-login-form-next-url").GetAttribute("value");
+                location = signInForm.Children.FirstOrDefault(child => child.GetAttribute("name") == "location").GetAttribute("value");
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The sign in form could not be parsed. Maybe the website structure of 9GAG has changed. If so, please report this error to the maintainer of the library.", exception);
+            }
+
+            // Tries to send a request to 9GAG in order to sign in the user, if the user could not be signed in, then an exception is thrown
+            try
+            {
+                HttpResponseMessage responseMessage = await this.httpClient.PostAsync(NineGagClient.signInUri, new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["csrftoken"] = crossSiteRequestForgeryToken,
+                    ["next"] = nextUrl,
+                    ["location"] = location,
+                    ["username"] = emailAddress,
+                    ["password"] = password
+                }), cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
+            }
+            catch (Exception)
+            {
+                this.IsUserSignedIn = false;
+                return false;
+            }
+
+            // Ensures that the sign in process was successful by checking the cookie container for the user identifier cookie (which is the session cookie, that contains the authentication token)
+            CookieCollection cookieCollection = this.cookieContainer.GetCookies(NineGagClient.baseUri);
+            foreach (Cookie cookie in cookieCollection)
+            {
+                if (cookie.Name == "session" && !string.IsNullOrWhiteSpace(cookie.Value))
+                {
+                    this.IsUserSignedIn = true;
+                    break;
+                }
+            }
+
+            // Returns true if the user was signed in successfully and false otherwise
+            return this.IsUserSignedIn;
+        }
+
+        /// <summary>
+        /// Signs the user in to 9GAG and makes it possible to view "not safe for work" posts, as well as comment on posts and upvote posts.
+        /// </summary>
+        /// <param name="emailAddress">The email address of the user, which is the user name used for the sign in.</param>
+        /// <param name="password">The password of the user, which is used for the sign in.</param>
+        /// <returns>Returns a value that determines whether the sign in process was successful.</returns>
+        public Task<bool> SignInAsync(string emailAddress, string password) => this.SignInAsync(emailAddress, password, new CancellationTokenSource().Token);
 
         #endregion
 
