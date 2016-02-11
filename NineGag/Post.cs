@@ -45,6 +45,11 @@ namespace NineGag
         public IEnumerable<Content> Content { get; internal set; }
 
         /// <summary>
+        /// Gets a value that determines whether this post is not safe for work, i.e. it contains explicit content and may only be viewed by signed in users.
+        /// </summary>
+        public bool IsNotSafeForWork { get; internal set; }
+
+        /// <summary>
         /// Gets the number of up-votes that the post received.
         /// </summary>
         public int NumberOfUpVotes { get; internal set; }

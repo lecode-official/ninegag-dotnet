@@ -253,8 +253,6 @@ namespace NineGag
                         postKind = PostKind.Video;
                     else if ((contentElement = postElement.QuerySelector("img")) != null)
                         postKind = PostKind.Image;
-                    else if (postElement.QuerySelector(".nsfw-post") != null)
-                        postKind = PostKind.NotSafeForWork;
 
                     // Gets the content of the post
                     Post post;
@@ -285,10 +283,6 @@ namespace NineGag
                             IsLongPost = contentElement.GetAttribute("src").ToUpperInvariant().Contains("LONG-POST")
                         };
                     }
-                    else if (postKind == PostKind.NotSafeForWork)
-                    {
-                        post = new NotSafeForWorkPost();
-                    }
                     else
                     {
                         post = new UnknownPost();
@@ -297,6 +291,7 @@ namespace NineGag
                     // Sets the general information of the post
                     post.Id = postElement.GetAttribute("data-entry-id");
                     post.Title = postElement.QuerySelector("header").TextContent.Trim();
+                    post.IsNotSafeForWork = postElement.QuerySelector(".nsfw-post") != null;
                     int numberOfComments, numberOfUpVotes;
                     int.TryParse(postElement.GetAttribute("data-entry-comments").Trim(), out numberOfComments);
                     int.TryParse(postElement.GetAttribute("data-entry-votes").Trim(), out numberOfUpVotes);
