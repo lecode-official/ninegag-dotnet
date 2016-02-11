@@ -56,7 +56,7 @@ namespace NineGag.Samples.Console
                         foreach (Post post in page.Posts)
                             System.Console.WriteLine(post.Title);
                     }
-
+                    
                     // Waits for a key stroke before the application is quit
                     System.Console.WriteLine();
                     System.Console.WriteLine("Press any key to exit...");

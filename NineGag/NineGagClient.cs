@@ -49,6 +49,11 @@ namespace NineGag
         private static readonly Uri signInUri = new Uri("https://9gag.com/login", UriKind.Absolute);
 
         /// <summary>
+        /// Contains the URI where users are able to sign out of 9GAG.
+        /// </summary>
+        private static readonly Uri signOutUri = new Uri("https://9gag.com/logout", UriKind.Absolute);
+
+        /// <summary>
         /// Contains a regular expression, which is used to parse the URI for the next page and extract the ID of the next page and the number of posts to retrieve.
         /// </summary>
         private static readonly Regex uriQueryRegex = new Regex(@"^/[^/]*/?\?id=(?<PageId>([^&]+))&c=(?<Count>([0-9]+))$");
@@ -84,7 +89,22 @@ namespace NineGag
         /// <summary>
         /// Gets a value, which determines whether the user is signed in or not.
         /// </summary>
-        public bool IsUserSignedIn { get; private set; }
+        public bool IsUserSignedIn
+        {
+            get
+            {
+                // Ensures that the sign in process was successful by checking the cookie container contains the session cookie, which contains the authentication token
+                CookieCollection cookieCollection = this.cookieContainer.GetCookies(NineGagClient.baseUri);
+                foreach (Cookie cookie in cookieCollection)
+                {
+                    if (cookie.Name == "session" && !string.IsNullOrWhiteSpace(cookie.Value))
+                        return true;
+                }
+
+                // Since the cookies could not be found, false is returned
+                return false;
+            }
+        }
 
         #endregion
 
@@ -424,22 +444,7 @@ namespace NineGag
                 }), cancellationToken);
                 responseMessage.EnsureSuccessStatusCode();
             }
-            catch (Exception)
-            {
-                this.IsUserSignedIn = false;
-                return false;
-            }
-
-            // Ensures that the sign in process was successful by checking the cookie container for the user identifier cookie (which is the session cookie, that contains the authentication token)
-            CookieCollection cookieCollection = this.cookieContainer.GetCookies(NineGagClient.baseUri);
-            foreach (Cookie cookie in cookieCollection)
-            {
-                if (cookie.Name == "session" && !string.IsNullOrWhiteSpace(cookie.Value))
-                {
-                    this.IsUserSignedIn = true;
-                    break;
-                }
-            }
+            catch (Exception) { }
 
             // Returns true if the user was signed in successfully and false otherwise
             return this.IsUserSignedIn;
@@ -452,6 +457,21 @@ namespace NineGag
         /// <param name="password">The password of the user, which is used for the sign in.</param>
         /// <returns>Returns a value that determines whether the sign in process was successful.</returns>
         public Task<bool> SignInAsync(string emailAddress, string password) => this.SignInAsync(emailAddress, password, new CancellationTokenSource().Token);
+
+        public async Task<bool> SignOutAsync(CancellationToken cancellationToken)
+        {
+            // Tries to sign the user out, if anything went wrong, then an exception is thrown
+            try
+            {
+                HttpResponseMessage responseMessage = await this.httpClient.PostAsync(NineGagClient.signOutUri, new StringContent(string.Empty), cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
+            }
+            catch (Exception) { }
+
+            return !this.IsUserSignedIn;
+        }
+
+        public Task<bool> SignOutAsync() => this.SignOutAsync(new CancellationTokenSource().Token);
 
         #endregion
 
