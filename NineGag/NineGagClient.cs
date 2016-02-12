@@ -31,7 +31,10 @@ namespace NineGag
         {
             // Creates a new cookie container as well as the HTTP client, which are used to communicate with the 9GAG server
             this.cookieContainer = new CookieContainer();
-            this.httpClient = new HttpClient(new HttpClientHandler { CookieContainer = cookieContainer });
+            this.httpClient = new HttpClient(new HttpClientHandler { CookieContainer = cookieContainer })
+            {
+                BaseAddress = NineGagClient.baseUri
+            };
         }
 
         #endregion
@@ -44,14 +47,19 @@ namespace NineGag
         private static readonly Uri baseUri = new Uri("http://9gag.com", UriKind.Absolute);
 
         /// <summary>
-        /// Contains the URI where users are able to sign in to 9GAG.
+        /// Contains the root path of the website.
         /// </summary>
-        private static readonly Uri signInUri = new Uri("https://9gag.com/login", UriKind.Absolute);
+        private static readonly string rootPath = "/";
 
         /// <summary>
-        /// Contains the URI where users are able to sign out of 9GAG.
+        /// Contains the path where users are able to sign in to 9GAG.
         /// </summary>
-        private static readonly Uri signOutUri = new Uri("https://9gag.com/logout", UriKind.Absolute);
+        private static readonly string signInPath = "/login";
+
+        /// <summary>
+        /// Contains the path where users are able to sign out of 9GAG.
+        /// </summary>
+        private static readonly string signOutPath = "/logout";
 
         /// <summary>
         /// Contains a regular expression, which is used to parse the URI for the next page and extract the ID of the next page and the number of posts to retrieve.
@@ -93,11 +101,11 @@ namespace NineGag
         {
             get
             {
-                // Ensures that the sign in process was successful by checking the cookie container contains the session cookie, which contains the authentication token
+                // Ensures that the sign in process was successful by checking the cookie container contains the ts1 cookie, which contains the authentication token
                 CookieCollection cookieCollection = this.cookieContainer.GetCookies(NineGagClient.baseUri);
                 foreach (Cookie cookie in cookieCollection)
                 {
-                    if (cookie.Name == "session" && !string.IsNullOrWhiteSpace(cookie.Value))
+                    if (cookie.Name == "ts1" && !string.IsNullOrWhiteSpace(cookie.Value))
                         return true;
                 }
 
@@ -125,7 +133,7 @@ namespace NineGag
             string nineGagMainPageContent;
             try
             {
-                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.baseUri, cancellationToken);
+                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.rootPath, cancellationToken);
                 responseMessage.EnsureSuccessStatusCode();
                 nineGagMainPageContent = await responseMessage.Content.ReadAsStringAsync();
             }
@@ -226,9 +234,9 @@ namespace NineGag
             try
             {
                 if (page != null && !string.IsNullOrWhiteSpace(page.NextPageId))
-                    absoluteUri = new Uri(NineGagClient.baseUri, $"{section.RelativeUri.OriginalString}/?id={page.NextPageId}&c={page.NumberOfPostsToRetrieve}");
+                    absoluteUri = new Uri($"{section.RelativeUri.OriginalString}/?id={page.NextPageId}&c={page.NumberOfPostsToRetrieve}", UriKind.Relative);
                 else
-                    absoluteUri = new Uri(NineGagClient.baseUri, section.RelativeUri);
+                    absoluteUri = section.RelativeUri;
             }
             catch (Exception exception)
             {
@@ -400,7 +408,7 @@ namespace NineGag
             string nineGagSignInPageContent;
             try
             {
-                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.signInUri, cancellationToken);
+                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.signInPath, cancellationToken);
                 nineGagSignInPageContent = await responseMessage.Content.ReadAsStringAsync();
             }
             catch (Exception exception)
@@ -420,12 +428,11 @@ namespace NineGag
             }
 
             // Tries to parse the sign in form, which contains the fields, which are needed to sign in the user, if the sign in form could not be parsed, then an exception is thrown
-            string crossSiteRequestForgeryToken, nextUrl, location;
+            string crossSiteRequestForgeryToken, location;
             try
             {
                 IElement signInForm = htmlDocument.QuerySelector("#login-email");
                 crossSiteRequestForgeryToken = signInForm.QuerySelector("#jsid-login-form-csrftoken").GetAttribute("value");
-                nextUrl = signInForm.QuerySelector("#jsid-login-form-next-url").GetAttribute("value");
                 location = signInForm.Children.FirstOrDefault(child => child.GetAttribute("name") == "location").GetAttribute("value");
             }
             catch (Exception exception)
@@ -436,10 +443,10 @@ namespace NineGag
             // Tries to send a request to 9GAG in order to sign in the user, if the user could not be signed in, then an exception is thrown
             try
             {
-                HttpResponseMessage responseMessage = await this.httpClient.PostAsync(NineGagClient.signInUri, new FormUrlEncodedContent(new Dictionary<string, string>
+                HttpResponseMessage responseMessage = await this.httpClient.PostAsync(NineGagClient.signInPath, new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["csrftoken"] = crossSiteRequestForgeryToken,
-                    ["next"] = nextUrl,
+                    ["next"] = NineGagClient.baseUri.OriginalString,
                     ["location"] = location,
                     ["username"] = emailAddress,
                     ["password"] = password
@@ -465,7 +472,7 @@ namespace NineGag
             // Tries to sign the user out, if anything went wrong, then an exception is thrown
             try
             {
-                HttpResponseMessage responseMessage = await this.httpClient.PostAsync(NineGagClient.signOutUri, new StringContent(string.Empty), cancellationToken);
+                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.signOutPath, cancellationToken);
                 responseMessage.EnsureSuccessStatusCode();
             }
             catch (Exception) { }
