@@ -467,6 +467,11 @@ namespace NineGag
         /// <returns>Returns a value that determines whether the sign in process was successful.</returns>
         public Task<bool> SignInAsync(string emailAddress, string password) => this.SignInAsync(emailAddress, password, new CancellationTokenSource().Token);
 
+        /// <summary>
+        /// Signs the user out of 9GAG.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the sign out action.</param>
+        /// <returns>Returns <c>true</c> if the user was signed out successfully.</returns>
         public async Task<bool> SignOutAsync(CancellationToken cancellationToken)
         {
             // Tries to sign the user out, if anything went wrong, then an exception is thrown
@@ -480,6 +485,10 @@ namespace NineGag
             return !this.IsUserSignedIn;
         }
 
+        /// <summary>
+        /// Signs the user out of 9GAG.
+        /// </summary>
+        /// <returns>Returns <c>true</c> if the user was signed out successfully.</returns>
         public Task<bool> SignOutAsync() => this.SignOutAsync(new CancellationTokenSource().Token);
 
         #endregion
