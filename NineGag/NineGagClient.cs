@@ -116,7 +116,7 @@ namespace NineGag
 
         #endregion
 
-        #region Public Methods
+        #region Public Section Methods
 
         /// <summary>
         /// Gets all the sections of 9GAG. Sections are like categories and contain the actual content.
@@ -218,6 +218,10 @@ namespace NineGag
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the sections, an <see cref="NineGagException"/> exception is thrown.</exception>
         /// <returns>Returns a list of all the sections that are currently available on 9GAG.</returns>
         public Task<IEnumerable<Section>> GetSectionsAsync() => this.GetSectionsAsync(new CancellationTokenSource().Token);
+
+        #endregion
+
+        #region Public Post Methods
 
         /// <summary>
         /// Gets the page of posts for the specified section and the next page of the specfied page.
@@ -394,6 +398,10 @@ namespace NineGag
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
         /// <returns>Returns the fist page of posts of the specified section.</returns>
         public Task<Page> GetPostsAsync(Section section) => this.GetPostsAsync(section, new CancellationTokenSource().Token);
+
+        #endregion
+
+        #region Public Authentication Methods
 
         /// <summary>
         /// Signs the user in to 9GAG and makes it possible to view "not safe for work" posts, as well as comment on posts and upvote posts.
