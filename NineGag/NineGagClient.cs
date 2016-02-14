@@ -490,6 +490,7 @@ namespace NineGag
             }
             catch (Exception) { }
 
+            // Returns true if the user was signed out successfully and false otherwise
             return !this.IsUserSignedIn;
         }
 
