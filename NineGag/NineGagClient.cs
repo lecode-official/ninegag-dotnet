@@ -140,7 +140,7 @@ namespace NineGag
                 throw new NineGagException("The HTML of the 9GAG main page could not be parsed. This could be an indicator, that the 9GAG website is down or its content has changed. If this problem keeps coming, then please report this problem to 9GAG or the maintainer of the library.", exception);
             }
 
-            // Treis to retrieve the main sections of 9GAG (hot, trending, fresh), if they could not be retrieved, then an exception is thrown
+            // Tries to retrieve the main sections of 9GAG (hot, trending, fresh), if they could not be retrieved, then an exception is thrown
             try
             {
                 IElement hotSection = htmlDocument.QuerySelector("a.hot");
@@ -507,7 +507,7 @@ namespace NineGag
         public void Dispose()
         {
             // Calls the dispose method, which can be overridden by sub-classes to dispose of further resources
-            Dispose(true);
+            this.Dispose(true);
 
             // Suppresses the finalization of this object by the garbage collector, because the resources have already been disposed of
             GC.SuppressFinalize(this);
@@ -529,9 +529,7 @@ namespace NineGag
             {
                 // Checks if the HTTP client has already been disposed of, if not then it is disposed of
                 if (this.httpClient != null)
-                {
                     this.httpClient.Dispose();
-                }
             }
         }
 
