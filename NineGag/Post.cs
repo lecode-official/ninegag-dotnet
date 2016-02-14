@@ -1,6 +1,7 @@
 ﻿
 #region Using Directives
 
+using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Html;
 using System;
@@ -16,14 +17,36 @@ namespace NineGag
     /// <summary>
     /// Represents the abstract base class for all kinds of posts offered by 9GAG.
     /// </summary>
-    public abstract class Post
+    public class Post
     {
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new <see cref="Post"/> instance,
+        /// </summary>
+        /// <param name="httpClient">The HTTP client, which is used to call the 9GAG website.</param>
+        internal Post(HttpClient httpClient)
+        {
+            this.HttpClient = httpClient;
+        }
+
+        #endregion
+
         #region Private Static Fields
 
         /// <summary>
         /// Contains the 9GAG base URI for posts.
         /// </summary>
         private static readonly Uri postBaseUri = new Uri("http://9gag.com/gag/", UriKind.Absolute);
+
+        #endregion
+
+        #region Protected Properties
+
+        /// <summary>
+        /// Gets an HTTP client, which is used to call the 9GAG website.
+        /// </summary>
+        internal HttpClient HttpClient { get; private set; }
 
         #endregion
 
@@ -64,17 +87,52 @@ namespace NineGag
         #region Internal Methods
 
         /// <summary>
+        /// Parses the specified post element and parses the general information about the post.
+        /// </summary>
+        /// <param name="postElement">The post element, which is to be parsed.</param>
+        internal virtual void ParseGeneralInformation(IElement postElement)
+        {
+            // Parses the ID and the title of the post
+            this.Id = postElement.GetAttribute("data-entry-id");
+            this.Title = postElement.QuerySelector("header").TextContent.Trim();
+
+            // Checks if the post is a NSFW post
+            this.IsNotSafeForWork = postElement.QuerySelector(".nsfw-post") != null;
+
+            // Parses the number of comments and the number of upvotes of the post
+            int numberOfComments, numberOfUpVotes;
+            int.TryParse(postElement.GetAttribute("data-entry-comments").Trim(), out numberOfComments);
+            int.TryParse(postElement.GetAttribute("data-entry-votes").Trim(), out numberOfUpVotes);
+            this.NumberOfComments = numberOfComments;
+            this.NumberOfUpVotes = numberOfUpVotes;
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Parses the HTML document for detail information. This can be overridden by sub-classes to implement custom detail information.
+        /// </summary>
+        /// <param name="htmlDocument">The HTML document, which is to be parsed.</param>
+        protected virtual void ParseDetailInformation(IHtmlDocument htmlDocument) { }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
         /// Fetches the detail information about the post.
         /// </summary>
-        /// <param name="httpClient">The HTTP client, which is used to fetch the detail information.</param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the fetching of the details.</param>
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the details, an <see cref="NineGagException"/> exception is thrown.</exception>
-        internal async Task FetchDetailsAsync(HttpClient httpClient, CancellationToken cancellationToken)
+        public async Task FetchDetailsAsync(CancellationToken cancellationToken)
         {
             // Tries to get the details page of the 9GAG post, if it could not be retrieved, then an exception is thrown
             string nineGagPostDetailsPageContent;
             try
             {
-                HttpResponseMessage responseMessage = await httpClient.GetAsync(new Uri(Post.postBaseUri, this.Id), cancellationToken);
+                HttpResponseMessage responseMessage = await this.HttpClient.GetAsync(new Uri(Post.postBaseUri, this.Id), cancellationToken);
                 responseMessage.EnsureSuccessStatusCode();
                 nineGagPostDetailsPageContent = await responseMessage.Content.ReadAsStringAsync();
 
@@ -100,15 +158,11 @@ namespace NineGag
             this.ParseDetailInformation(htmlDocument);
         }
 
-        #endregion
-
-        #region Protected Methods
-
         /// <summary>
-        /// Parses the HTML document for detail information. This can be overridden by sub-classes to implement custom detail information.
+        /// Fetches the detail information about the post.
         /// </summary>
-        /// <param name="htmlDocument">The HTML document, which is to be parsed.</param>
-        protected abstract void ParseDetailInformation(IHtmlDocument htmlDocument);
+        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the details, an <see cref="NineGagException"/> exception is thrown.</exception>
+        public Task FetchDetailsAsync() => this.FetchDetailsAsync(new CancellationTokenSource().Token);
 
         #endregion
     }

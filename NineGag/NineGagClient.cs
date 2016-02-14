@@ -231,59 +231,17 @@ namespace NineGag
                 IHtmlCollection<IElement> postElements = htmlDocument.QuerySelectorAll("article");
                 foreach (IElement postElement in postElements)
                 {
-                    // Checks if the post is a video or an image post
-                    PostKind postKind;
-                    IElement contentElement;
-                    if ((contentElement = postElement.QuerySelector("video")) != null)
-                        postKind = PostKind.Video;
-                    else if ((contentElement = postElement.QuerySelector("img")) != null)
-                        postKind = PostKind.Image;
-                    else
-                        postKind = PostKind.Unknown;
-
-                    // Gets the content of the post
+                    // Checks the kind of the post and creates the corresponding post object
                     Post post;
-                    if (postKind == PostKind.Video)
-                    {
-                        post = new VideoPost
-                        {
-                            Content = contentElement.GetElementsByTagName("source").Select(child => new Content
-                            {
-                                Uri = new Uri(child.GetAttribute("src"), UriKind.Absolute),
-                                Kind = child.GetAttribute("type").ToUpperInvariant() == "VIDEO/MP4" ? ContentKind.Mp4 : ContentKind.WebM
-                            }).ToList(),
-                            ThumbnailUri = new Uri(contentElement.GetAttribute("poster"), UriKind.Absolute)
-                        };
-                    }
-                    else if (postKind == PostKind.Image)
-                    {
-                        post = new ImagePost
-                        {
-                            Content = new List<Content>
-                        {
-                            new Content
-                            {
-                                Uri = new Uri(contentElement.GetAttribute("src"), UriKind.Absolute),
-                                Kind = ContentKind.Jpeg
-                            }
-                        },
-                            IsLongPost = contentElement.GetAttribute("src").ToUpperInvariant().Contains("LONG-POST")
-                        };
-                    }
+                    if (postElement.QuerySelector("video") != null)
+                        post = new VideoPost(this.httpClient);
+                    else if (postElement.QuerySelector("img") != null)
+                        post = new ImagePost(this.httpClient);
                     else
-                    {
-                        post = new UnknownPost();
-                    }
+                        post = new Post(this.httpClient);
 
-                    // Sets the general information of the post
-                    post.Id = postElement.GetAttribute("data-entry-id");
-                    post.Title = postElement.QuerySelector("header").TextContent.Trim();
-                    post.IsNotSafeForWork = postElement.QuerySelector(".nsfw-post") != null;
-                    int numberOfComments, numberOfUpVotes;
-                    int.TryParse(postElement.GetAttribute("data-entry-comments").Trim(), out numberOfComments);
-                    int.TryParse(postElement.GetAttribute("data-entry-votes").Trim(), out numberOfUpVotes);
-                    post.NumberOfComments = numberOfComments;
-                    post.NumberOfUpVotes = numberOfUpVotes;
+                    // Parses the general information about the post
+                    post.ParseGeneralInformation(postElement);
 
                     // Adds the newly created post to the result set
                     posts.Add(post);
@@ -305,17 +263,7 @@ namespace NineGag
                 int.TryParse(match.Groups["Count"].Value, out numberOfPostsToRetrieve);
             }
             catch (Exception) { }
-
-            // Tries to fetch the details of the all the posts, if the details could not be fetched, then an exception is thrown
-            try
-            {
-                await Task.WhenAll(posts.Select(post => post.FetchDetailsAsync(this.httpClient, cancellationToken)));
-            }
-            catch (Exception exception)
-            {
-                throw new NineGagException("The details of the posts could not be fetched. Maybe the website structure of 9GAG has changed. If so, please report this error to the maintainer of the library.", exception);
-            }
-
+            
             // Returns the result set, which contains all the posts
             return new Page
             {
