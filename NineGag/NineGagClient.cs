@@ -140,31 +140,25 @@ namespace NineGag
                 throw new NineGagException("The HTML of the 9GAG main page could not be parsed. This could be an indicator, that the 9GAG website is down or its content has changed. If this problem keeps coming, then please report this problem to 9GAG or the maintainer of the library.", exception);
             }
 
-            // Tries to retrieve the main sections of 9GAG (hot, trending, fresh), if they could not be retrieved, then an exception is thrown
+            // Tries to retrieve the sections of 9GAG, if they could not be retrieved, then an exception is thrown
             try
             {
+                // Parses the main sections of 9GAG (hot, trending, fresh)
                 sections.AddRange(new List<Section>
                 {
                     Section.FromHtml(htmlDocument.QuerySelector("a.hot"), NineGagClient.baseUri),
                     Section.FromHtml(htmlDocument.QuerySelector("a.trending"), NineGagClient.baseUri),
                     Section.FromHtml(htmlDocument.QuerySelector("a.fresh"), NineGagClient.baseUri)
                 });
-            }
-            catch (Exception exception)
-            {
-                throw new NineGagException("One of the main sections (hot, trending, and fresh) of 9GAG could not be retrieved. Maybe the website structure of 9GAG has changed. If so, please report this error to the maintainer of the library.", exception);
-            }
 
-            // Tries to retrieve the other, less known 9GAG sections, if they could not be retrieved, then an exception is thrown
-            try
-            {
+                // Parses the other, less known 9GAG sections
                 IHtmlCollection<IElement> otherSections = htmlDocument.QuerySelectorAll("li.badge-section-menu-items > a");
                 foreach (IElement otherSection in otherSections)
                     sections.Add(Section.FromHtml(otherSection, NineGagClient.baseUri));
             }
             catch (Exception exception)
             {
-                throw new NineGagException("One of the other sections of 9GAG could not be retrieved. Maybe the website structure of 9GAG has changed. If so, please report this error to the maintainer of the library.", exception);
+                throw new NineGagException("One of the 9GAG sections could not be retrieved. Maybe the website structure of 9GAG has changed. If so, please report this error to the maintainer of the library.", exception);
             }
             
             // Returns the parsed sections
