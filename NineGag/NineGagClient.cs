@@ -31,10 +31,12 @@ namespace NineGag
         {
             // Creates a new cookie container as well as the HTTP client, which are used to communicate with the 9GAG server
             this.cookieContainer = new CookieContainer();
-            this.httpClient = new HttpClient(new HttpClientHandler { CookieContainer = cookieContainer })
+            this.httpClient = new HttpClient(new HttpClientHandler
             {
-                BaseAddress = NineGagClient.baseUri
-            };
+                CookieContainer = cookieContainer,
+                AllowAutoRedirect = false
+            });
+            this.httpClient.BaseAddress = NineGagClient.baseUri;
         }
 
         #endregion
@@ -97,22 +99,7 @@ namespace NineGag
         /// <summary>
         /// Gets a value, which determines whether the user is signed in or not.
         /// </summary>
-        public bool IsUserSignedIn
-        {
-            get
-            {
-                // Ensures that the sign in process was successful by checking the cookie container contains the ts1 cookie, which contains the authentication token
-                CookieCollection cookieCollection = this.cookieContainer.GetCookies(NineGagClient.baseUri);
-                foreach (Cookie cookie in cookieCollection)
-                {
-                    if (cookie.Name == "ts1" && !string.IsNullOrWhiteSpace(cookie.Value))
-                        return true;
-                }
-
-                // Since the cookies could not be found, false is returned
-                return false;
-            }
-        }
+        public bool IsUserSignedIn { get; private set; }
 
         #endregion
 
@@ -451,6 +438,7 @@ namespace NineGag
             // Tries to send a request to 9GAG in order to sign in the user, if the user could not be signed in, then an exception is thrown
             try
             {
+                // Sends the request to sign the user in
                 HttpResponseMessage responseMessage = await this.httpClient.PostAsync(NineGagClient.signInPath, new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["csrftoken"] = crossSiteRequestForgeryToken,
@@ -459,9 +447,15 @@ namespace NineGag
                     ["username"] = emailAddress,
                     ["password"] = password
                 }), cancellationToken);
-                responseMessage.EnsureSuccessStatusCode();
+
+                // Validates that the user is actually signed in, which is when the status code is 302 Found, when the user could not be signed in, then the status code is 200 OK
+                this.IsUserSignedIn = responseMessage.StatusCode == HttpStatusCode.Found;
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                // Since an exception was thrown, the user could not be signed in successfully
+                this.IsUserSignedIn = false;
+            }
 
             // Returns true if the user was signed in successfully and false otherwise
             return this.IsUserSignedIn;
@@ -485,8 +479,11 @@ namespace NineGag
             // Tries to sign the user out, if anything went wrong, then an exception is thrown
             try
             {
+                // Makes the request to sign the user out
                 HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.signOutPath, cancellationToken);
-                responseMessage.EnsureSuccessStatusCode();
+
+                // Validates that the user was successfully signed out, which is when the status code is 302 Found, if the user could not be signed out, then an HTTP 200 OK is returned
+                this.IsUserSignedIn = responseMessage.StatusCode != HttpStatusCode.Found;
             }
             catch (Exception) { }
 
