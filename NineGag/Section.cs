@@ -1,6 +1,7 @@
 ﻿
 #region Using Directives
 
+using AngleSharp.Dom;
 using System;
 
 #endregion
@@ -12,22 +13,57 @@ namespace NineGag
     /// </summary>
     public class Section
     {
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new <see cref="Section"/> instance. The constructor is private, because <see cref="Section"/> implements a factory pattern.
+        /// </summary>
+        private Section() { }
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
         /// Gets the original title of the section, as it is called on 9GAG:
         /// </summary>
-        public string Title { get; internal set; }
+        public string Title { get; private set; }
 
         /// <summary>
         /// Gets the relative URI of the section.
         /// </summary>
-        public Uri RelativeUri { get; internal set; }
+        public Uri RelativeUri { get; private set; }
 
         /// <summary>
         /// Gets the kind of the section, which makes some of well-known sections computer-readable.
         /// </summary>
-        public SectionKind Kind { get; internal set; }
+        public SectionKind Kind { get; private set; }
+
+        #endregion
+
+        #region Internal Static Methods
+
+        /// <summary>
+        /// Parses the specified DOM element and creates a section from it.
+        /// </summary>
+        /// <param name="sectionElement">The DOM element, which is to be parsed.</param>
+        /// <param name="baseUri">The base URI, which is used to make the section URI relative.</param>
+        /// <returns>Returns the section, which was created from the DOM element.</returns>
+        internal static Section FromHtml(IElement sectionElement, Uri baseUri)
+        {
+            // Parses the section kind, if the section kind could not be parsed, then the section kind is set to unknown
+            SectionKind sectionKind;
+            if (!Enum.TryParse(sectionElement.TextContent.Trim().Replace(" ", string.Empty), true, out sectionKind))
+                sectionKind = SectionKind.Unknown;
+
+            // Creates the new section and adds it to the list of sections
+            return new Section
+            {
+                Title = sectionElement.TextContent.Trim(),
+                Kind = sectionKind,
+                RelativeUri = baseUri.MakeRelativeUri(new Uri(sectionElement.GetAttribute("href"), UriKind.Absolute))
+            };
+        }
 
         #endregion
     }

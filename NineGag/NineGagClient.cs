@@ -143,26 +143,11 @@ namespace NineGag
             // Tries to retrieve the main sections of 9GAG (hot, trending, fresh), if they could not be retrieved, then an exception is thrown
             try
             {
-                IElement hotSection = htmlDocument.QuerySelector("a.hot");
-                sections.Add(new Section
+                sections.AddRange(new List<Section>
                 {
-                    Title = hotSection.TextContent.Trim(),
-                    Kind = SectionKind.Hot,
-                    RelativeUri = NineGagClient.baseUri.MakeRelativeUri(new Uri(hotSection.GetAttribute("href"), UriKind.Absolute))
-                });
-                IElement trendingSection = htmlDocument.QuerySelector("a.trending");
-                sections.Add(new Section
-                {
-                    Title = trendingSection.TextContent.Trim(),
-                    Kind = SectionKind.Trending,
-                    RelativeUri = NineGagClient.baseUri.MakeRelativeUri(new Uri(trendingSection.GetAttribute("href"), UriKind.Absolute))
-                });
-                IElement freshSection = htmlDocument.QuerySelector("a.fresh");
-                sections.Add(new Section
-                {
-                    Title = freshSection.TextContent.Trim(),
-                    Kind = SectionKind.Fresh,
-                    RelativeUri = NineGagClient.baseUri.MakeRelativeUri(new Uri(freshSection.GetAttribute("href"), UriKind.Absolute))
+                    Section.FromHtml(htmlDocument.QuerySelector("a.hot"), NineGagClient.baseUri),
+                    Section.FromHtml(htmlDocument.QuerySelector("a.trending"), NineGagClient.baseUri),
+                    Section.FromHtml(htmlDocument.QuerySelector("a.fresh"), NineGagClient.baseUri)
                 });
             }
             catch (Exception exception)
@@ -175,20 +160,7 @@ namespace NineGag
             {
                 IHtmlCollection<IElement> otherSections = htmlDocument.QuerySelectorAll("li.badge-section-menu-items > a");
                 foreach (IElement otherSection in otherSections)
-                {
-                    // Parses the section kind, if the section kind could not be parsed, then the section kind is set to unknown
-                    SectionKind sectionKind;
-                    if (!Enum.TryParse(otherSection.TextContent.Trim().Replace(" ", string.Empty), true, out sectionKind))
-                        sectionKind = SectionKind.Unknown;
-
-                    // Creates the new section and adds it to the list of sections
-                    sections.Add(new Section
-                    {
-                        Title = otherSection.TextContent.Trim(),
-                        Kind = sectionKind,
-                        RelativeUri = NineGagClient.baseUri.MakeRelativeUri(new Uri(otherSection.GetAttribute("href"), UriKind.Absolute))
-                    });
-                }
+                    sections.Add(Section.FromHtml(otherSection, NineGagClient.baseUri));
             }
             catch (Exception exception)
             {
