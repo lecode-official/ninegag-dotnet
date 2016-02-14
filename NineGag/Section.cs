@@ -22,6 +22,15 @@ namespace NineGag
 
         #endregion
 
+        #region Private Static Fields
+
+        /// <summary>
+        /// Contains the 9GAG base URI.
+        /// </summary>
+        private static readonly Uri baseUri = new Uri("http://9gag.com", UriKind.Absolute);
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
@@ -47,9 +56,8 @@ namespace NineGag
         /// Parses the specified DOM element and creates a section from it.
         /// </summary>
         /// <param name="sectionElement">The DOM element, which is to be parsed.</param>
-        /// <param name="baseUri">The base URI, which is used to make the section URI relative.</param>
         /// <returns>Returns the section, which was created from the DOM element.</returns>
-        internal static Section FromHtml(IElement sectionElement, Uri baseUri)
+        internal static Section FromHtml(IElement sectionElement)
         {
             // Parses the section kind, if the section kind could not be parsed, then the section kind is set to unknown
             SectionKind sectionKind;
@@ -61,7 +69,7 @@ namespace NineGag
             {
                 Title = sectionElement.TextContent.Trim(),
                 Kind = sectionKind,
-                RelativeUri = baseUri.MakeRelativeUri(new Uri(sectionElement.GetAttribute("href"), UriKind.Absolute))
+                RelativeUri = Section.baseUri.MakeRelativeUri(new Uri(sectionElement.GetAttribute("href"), UriKind.Absolute))
             };
         }
 

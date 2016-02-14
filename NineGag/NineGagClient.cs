@@ -146,15 +146,15 @@ namespace NineGag
                 // Parses the main sections of 9GAG (hot, trending, fresh)
                 sections.AddRange(new List<Section>
                 {
-                    Section.FromHtml(htmlDocument.QuerySelector("a.hot"), NineGagClient.baseUri),
-                    Section.FromHtml(htmlDocument.QuerySelector("a.trending"), NineGagClient.baseUri),
-                    Section.FromHtml(htmlDocument.QuerySelector("a.fresh"), NineGagClient.baseUri)
+                    Section.FromHtml(htmlDocument.QuerySelector("a.hot")),
+                    Section.FromHtml(htmlDocument.QuerySelector("a.trending")),
+                    Section.FromHtml(htmlDocument.QuerySelector("a.fresh"))
                 });
 
                 // Parses the other, less known 9GAG sections
                 IHtmlCollection<IElement> otherSections = htmlDocument.QuerySelectorAll("li.badge-section-menu-items > a");
                 foreach (IElement otherSection in otherSections)
-                    sections.Add(Section.FromHtml(otherSection, NineGagClient.baseUri));
+                    sections.Add(Section.FromHtml(otherSection));
             }
             catch (Exception exception)
             {
