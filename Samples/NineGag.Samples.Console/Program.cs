@@ -44,7 +44,7 @@ namespace NineGag.Samples.Console
                     Section hotSection = (await nineGagClient.GetSectionsAsync()).FirstOrDefault(section => section.Kind == SectionKind.Hot);
                     List<Page> pages = new List<Page>();
                     pages.Add(await nineGagClient.GetPostsAsync(hotSection));
-                    pages.Add(await nineGagClient.GetPostsAsync(hotSection, pages.Last()));
+                    pages.Add(await nineGagClient.GetPostsAsync(pages.Last()));
 
                     // Prints all the retrieved pages
                     foreach (Page page in pages)

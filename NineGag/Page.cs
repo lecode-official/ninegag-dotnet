@@ -1,6 +1,7 @@
 ﻿
 #region Using Directives
 
+using System;
 using System.Collections.Generic;
 
 #endregion
@@ -15,20 +16,15 @@ namespace NineGag
         #region Public Properties
 
         /// <summary>
-        /// Gets the ID of the current page. If the ID of the current page is <c>null</c>, then this is the first page.
+        /// Gets or sets the URI, which was used to retrieve the current page. If the URI for the current page is <c>null</c>, then this is the first page.
         /// </summary>
-        public string CurrentPageId { get; internal set; }
+        internal Uri CurrentPageUri { get; set; }
 
         /// <summary>
-        /// Gets the ID of the next page.
+        /// Gets or sets the URI, which is needed to retrieve the next page.
         /// </summary>
-        public string NextPageId { get; internal set; }
-
-        /// <summary>
-        /// Gets the number of posts that are to be retrieved per page.
-        /// </summary>
-        public int NumberOfPostsToRetrieve { get; internal set; }
-
+        internal Uri NextPageUri { get; set; }
+        
         /// <summary>
         /// Gets the post of the page.
         /// </summary>
