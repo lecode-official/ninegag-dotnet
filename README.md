@@ -10,11 +10,19 @@
 this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes
 it really simple to get all the posts from 9GAG. The library is also fully asynchronous and available for a lot of platforms.
 
-## Using the Library
+## Using the Project
 
-Right now the library is available as source code only, so you have to download and manually build the solution. The project was built using Visual
-Studio 2015. Basically any version of Visual Studio 2015 will suffice, no extra plugins or tools are needed Just clone the Git repository, open the
-solution in Visual Studio, and build it.
+The project is available on NuGet: https://www.nuget.org/packages/NineGag/.
+
+```batch
+PM> Install-Package NineGag
+```
+
+If you want to you can download and manually build the solution. The project was built using Visual Studio 2015. Basically any version of Visual Studio 2015 will
+suffice, no extra plugins or tools are needed (except for the `NineGag` NuGet project, which needs the
+[NuBuild Project System](https://visualstudiogallery.msdn.microsoft.com/3efbfdea-7d51-4d45-a954-74a2df51c5d0) Visual Studio extension for building the NuGet
+package). Just clone the Git repository, open the solution in Visual Studio, and build the solution.
+
 
 ```batch
 git pull https://github.com/lecode-official/ninegag-dotnet.git
