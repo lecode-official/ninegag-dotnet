@@ -299,6 +299,10 @@ namespace NineGag
         /// <returns>Returns a value that determines whether the sign in process was successful.</returns>
         public async Task<bool> SignInAsync(string emailAddress, string password, CancellationToken cancellationToken)
         {
+            // Checks if the user is already signed in, in that case he is signed out first
+            if (this.IsUserSignedIn)
+                await this.SignOutAsync();
+
             // Tries to get the sign in page of the 9GAG website, if it could not be retrieved, then an exception is thrown
             string nineGagSignInPageContent;
             try
@@ -376,6 +380,10 @@ namespace NineGag
         /// <returns>Returns <c>true</c> if the user was signed out successfully.</returns>
         public async Task<bool> SignOutAsync(CancellationToken cancellationToken)
         {
+            // Checks if the user is signed in, if not, then nothing needs to be done
+            if (!this.IsUserSignedIn)
+                return true;
+
             // Tries to sign the user out, if anything went wrong, then an exception is thrown
             try
             {
