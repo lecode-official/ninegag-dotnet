@@ -19,7 +19,7 @@ PM> Install-Package NineGag
 ```
 
 If you want to you can download and manually build the solution. The project was built using Visual Studio 2015. Basically any version of Visual Studio 2015 will
-suffice, no extra plugins or tools are needed (except for the `NineGag` NuGet project, which needs the
+suffice, no extra plugins or tools are needed (except for the `NineGag.nuproj` project, which needs the
 [NuBuild Project System](https://visualstudiogallery.msdn.microsoft.com/3efbfdea-7d51-4d45-a954-74a2df51c5d0) Visual Studio extension for building the NuGet
 package). Just clone the Git repository, open the solution in Visual Studio, and build the solution.
 
