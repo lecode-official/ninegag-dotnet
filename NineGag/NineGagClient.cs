@@ -266,7 +266,18 @@ namespace NineGag
         /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the page.</param>
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
         /// <returns>Returns the first page of the specified section.</returns>
-        public Task<Page> GetPostsAsync(Section section, SubSection subSection, CancellationToken cancellationToken) => this.GetPostsAsync(new Uri(string.Concat(section.RelativeUri.OriginalString, subSection == SubSection.Hot ? NineGagClient.hotPath : NineGagClient.freshPath), UriKind.Relative), cancellationToken);
+        public Task<Page> GetPostsAsync(Section section, SubSection subSection, CancellationToken cancellationToken)
+        {
+            // Generates the URI for the section and sub-section
+            Uri sectionUri;
+            if (subSection == SubSection.Hot)
+                sectionUri = new Uri(string.Concat(section.RelativeUri.OriginalString, NineGagClient.hotPath), UriKind.Relative);
+            else
+                sectionUri = new Uri(string.Concat(section.RelativeUri.OriginalString, NineGagClient.freshPath), UriKind.Relative);
+
+            // Retrieves the posts of the section and the sub-section
+            return this.GetPostsAsync(sectionUri, cancellationToken);
+        }
 
         /// <summary>
         /// Gets the first page of posts for the specified section and sub-section.
