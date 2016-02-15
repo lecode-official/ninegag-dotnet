@@ -31,9 +31,8 @@ try
     using (NineGagClient nineGagClient = new NineGagClient())
     {
         // Gets the first two pages of 9GAG
-        Section hotSection = (await nineGagClient.GetSectionsAsync()).FirstOrDefault(section => section.Kind == SectionKind.Hot);
         List<Page> pages = new List<Page>();
-        pages.Add(await nineGagClient.GetPostsAsync(hotSection));
+        pages.Add(await nineGagClient.GetPostsAsync());
         pages.Add(await nineGagClient.GetPostsAsync(pages.Last()));
 
         // Prints all the retrieved pages

@@ -40,10 +40,12 @@
     <Compile Include="NineGagException.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="Post.cs" />
+    <Compile Include="PostActuality.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Section.cs" />
     <Compile Include="SectionKind.cs" />
     <Compile Include="Content.cs" />
+    <Compile Include="SubSection.cs" />
     <Compile Include="VideoPost.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -62,6 +62,21 @@ namespace NineGag
         /// </summary>
         private static readonly string signOutPath = "/logout";
 
+        /// <summary>
+        /// Contains the path for the hot page or sub-section.
+        /// </summary>
+        private static readonly string hotPath = "/hot";
+
+        /// <summary>
+        /// Contains the path for the trending page.
+        /// </summary>
+        private static readonly string trendingPath = "/trending";
+
+        /// <summary>
+        /// Contains the path for the fresh page or sub-section.
+        /// </summary>
+        private static readonly string freshPath = "/fresh";
+
         #endregion
 
         #region Private Fields
@@ -219,15 +234,6 @@ namespace NineGag
             // Tries to retrieve the sections of 9GAG, if they could not be retrieved, then an exception is thrown
             try
             {
-                // Parses the main sections of 9GAG (hot, trending, fresh)
-                sections.AddRange(new List<Section>
-                {
-                    Section.FromHtml(htmlDocument.QuerySelector("a.hot")),
-                    Section.FromHtml(htmlDocument.QuerySelector("a.trending")),
-                    Section.FromHtml(htmlDocument.QuerySelector("a.fresh"))
-                });
-
-                // Parses the other, less known 9GAG sections
                 IHtmlCollection<IElement> otherSections = htmlDocument.QuerySelectorAll("li.badge-section-menu-items > a");
                 foreach (IElement otherSection in otherSections)
                     sections.Add(Section.FromHtml(otherSection));
@@ -253,13 +259,32 @@ namespace NineGag
         #region Public Post Methods
 
         /// <summary>
+        /// Gets the first page of posts for the specified section and sub-section.
+        /// </summary>
+        /// <param name="section">The section for which the posts are to be retrieved.</param>
+        /// <param name="subSection">The sub-section for which the posts are to be retrieved.</param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the page.</param>
+        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
+        /// <returns>Returns the first page of the specified section.</returns>
+        public Task<Page> GetPostsAsync(Section section, SubSection subSection, CancellationToken cancellationToken) => this.GetPostsAsync(new Uri(string.Concat(section.RelativeUri.OriginalString, subSection == SubSection.Hot ? NineGagClient.hotPath : NineGagClient.freshPath), UriKind.Relative), cancellationToken);
+
+        /// <summary>
+        /// Gets the first page of posts for the specified section and sub-section.
+        /// </summary>
+        /// <param name="section">The section for which the posts are to be retrieved.</param>
+        /// <param name="subSection">The sub-section for which the posts are to be retrieved.</param>
+        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
+        /// <returns>Returns the first page of the specified section.</returns>
+        public Task<Page> GetPostsAsync(Section section, SubSection subSection) => this.GetPostsAsync(section, subSection, new CancellationTokenSource().Token);
+
+        /// <summary>
         /// Gets the first page of posts for the specified section.
         /// </summary>
         /// <param name="section">The section for which the posts are to be retrieved.</param>
         /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the page.</param>
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
         /// <returns>Returns the first page of the specified section.</returns>
-        public Task<Page> GetPostsAsync(Section section, CancellationToken cancellationToken) => this.GetPostsAsync(section.RelativeUri, cancellationToken);
+        public Task<Page> GetPostsAsync(Section section, CancellationToken cancellationToken) => this.GetPostsAsync(section, SubSection.Hot, cancellationToken);
 
         /// <summary>
         /// Gets the first page of posts for the specified section.
@@ -268,6 +293,45 @@ namespace NineGag
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the page, an <see cref="NineGagException"/> exception is thrown.</exception>
         /// <returns>Returns the first page of the specified section.</returns>
         public Task<Page> GetPostsAsync(Section section) => this.GetPostsAsync(section, new CancellationTokenSource().Token);
+
+        /// <summary>
+        /// Gets the first page of posts of the specified actuality.
+        /// </summary>
+        /// <param name="postActuality">The actuality of the posts that are to be retrieved.</param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
+        /// <returns>Returns the first page of posts of the specified actuality.</returns>
+        public Task<Page> GetPostsAsync(PostActuality postActuality, CancellationToken cancellationToken)
+        {
+            switch (postActuality)
+            {
+                case PostActuality.Hot:
+                    return this.GetPostsAsync(new Uri(NineGagClient.hotPath, UriKind.Relative), cancellationToken);
+                case PostActuality.Trending:
+                    return this.GetPostsAsync(new Uri(NineGagClient.trendingPath, UriKind.Relative), cancellationToken);
+                default:
+                    return this.GetPostsAsync(new Uri(NineGagClient.freshPath, UriKind.Relative), cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Gets the first page of posts of the specified actuality.
+        /// </summary>
+        /// <param name="postActuality">The actuality of the posts that are to be retrieved.</param>
+        /// <returns>Returns the first page of posts of the specified actuality.</returns>
+        public Task<Page> GetPostsAsync(PostActuality postActuality) => this.GetPostsAsync(postActuality, new CancellationTokenSource().Token);
+
+        /// <summary>
+        /// Gets the first page of hot posts.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
+        /// <returns>Returns the first page of hot posts.</returns>
+        public Task<Page> GetPostsAsync(CancellationToken cancellationToken) => this.GetPostsAsync(PostActuality.Hot, cancellationToken);
+
+        /// <summary>
+        /// Gets the first page of hot posts.
+        /// </summary>
+        /// <returns>Returns the first page of hot posts.</returns>
+        public Task<Page> GetPostsAsync() => this.GetPostsAsync(new CancellationTokenSource().Token);
 
         /// <summary>
         /// Gets the page of posts after the specified page.

@@ -12,21 +12,6 @@ namespace NineGag
         Unknown,
 
         /// <summary>
-        /// Represents the hot section, which is the frontpage of the 9GAG.
-        /// </summary>
-        Hot,
-
-        /// <summary>
-        /// Represents the trending section of 9GAG.
-        /// </summary>
-        Trending,
-
-        /// <summary>
-        /// Represents the fresh section of 9GAG.
-        /// </summary>
-        Fresh,
-
-        /// <summary>
         /// Represents the funny section of 9GAG.
         /// </summary>
         Funny,
