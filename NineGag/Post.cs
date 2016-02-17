@@ -41,7 +41,7 @@ namespace NineGag
 
         #endregion
 
-        #region Protected Properties
+        #region Internal Properties
 
         /// <summary>
         /// Gets an HTTP client, which is used to call the 9GAG website.
@@ -55,32 +55,32 @@ namespace NineGag
         /// <summary>
         /// Gets or sets the ID of the post.
         /// </summary>
-        public string Id { get; internal set; }
+        public string Id { get; private set; }
 
         /// <summary>
         /// Gets or sets the title of the post.
         /// </summary>
-        public string Title { get; internal set; }
+        public string Title { get; private set; }
 
         /// <summary>
         /// Gets the URI of the MP4 video content of the post.
         /// </summary>
-        public IEnumerable<Content> Content { get; internal set; }
+        public IEnumerable<Content> Content { get; protected set; }
 
         /// <summary>
         /// Gets a value that determines whether this post is not safe for work, i.e. it contains explicit content and may only be viewed by signed in users.
         /// </summary>
-        public bool IsNotSafeForWork { get; internal set; }
+        public bool IsNotSafeForWork { get; private set; }
 
         /// <summary>
         /// Gets the number of up-votes that the post received.
         /// </summary>
-        public int NumberOfUpVotes { get; internal set; }
+        public int NumberOfUpVotes { get; private set; }
 
         /// <summary>
         /// Gets or sets the number of comments of the post.
         /// </summary>
-        public int NumberOfComments { get; internal set; }
+        public int NumberOfComments { get; private set; }
 
         #endregion
 

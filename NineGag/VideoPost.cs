@@ -33,7 +33,7 @@ namespace NineGag
         /// <summary>
         /// Gets the URI of the thumbnail of the video.
         /// </summary>
-        public Uri ThumbnailUri { get; internal set; }
+        public Uri ThumbnailUri { get; private set; }
 
         #endregion
 
