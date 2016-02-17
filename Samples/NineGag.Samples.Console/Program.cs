@@ -46,14 +46,13 @@ namespace NineGag.Samples.Console
                         User user = await nineGagClient.GetCurrentUserAsync();
                         System.Console.WriteLine();
                         System.Console.WriteLine($"Welcome back, {user.FullName}!");
-                        System.Console.WriteLine();
                     }
 
                     // Gets the first two pages of 9GAG
                     List<Page> pages = new List<Page>();
                     pages.Add(await nineGagClient.GetPostsAsync());
                     pages.Add(await nineGagClient.GetPostsAsync(pages.Last()));
-
+                    
                     // Prints all the retrieved pages
                     foreach (Page page in pages)
                     {

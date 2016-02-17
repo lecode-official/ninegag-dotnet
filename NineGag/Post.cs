@@ -4,6 +4,7 @@
 using AngleSharp.Dom;
 using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Html;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -38,6 +39,16 @@ namespace NineGag
         /// Contains the 9GAG base URI for posts.
         /// </summary>
         private static readonly Uri postBaseUri = new Uri("http://9gag.com/gag/", UriKind.Absolute);
+
+        /// <summary>
+        /// Contains the path were users can upvote a post.
+        /// </summary>
+        private static readonly string upvotePath = "/vote/like";
+
+        /// <summary>
+        /// Contains the path were users can downvote a post.
+        /// </summary>
+        private static readonly string downvotePath = "/vote/dislike";
 
         #endregion
 
@@ -119,7 +130,7 @@ namespace NineGag
 
         #endregion
 
-        #region Public Methods
+        #region Public Details Methods
 
         /// <summary>
         /// Fetches the detail information about the post.
@@ -163,6 +174,111 @@ namespace NineGag
         /// </summary>
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the details, an <see cref="NineGagException"/> exception is thrown.</exception>
         public Task FetchDetailsAsync() => this.FetchDetailsAsync(new CancellationTokenSource().Token);
+
+        #endregion
+
+        #region Public Voting Methods
+
+        /// <summary>
+        /// Gives the post a vote up.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the upvoting process.</param>
+        public async Task UpvoteAsync(CancellationToken cancellationToken)
+        {
+            // Tries to send a request to 9GAG in order to upvote the post represented by this object, if the post could not be upvoted, then an exception is thrown
+            VotingResult votingResult;
+            try
+            {
+                // Sends the request to 9GAG in order to upvote the post and validates the status code
+                HttpResponseMessage responseMessage = await this.HttpClient.PostAsync(Post.upvotePath, new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["id"] = this.Id
+                }), cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
+
+                // Parses the result
+                string votingResultContent = await responseMessage.Content.ReadAsStringAsync();
+                votingResult = await Task.Run(() => JsonConvert.DeserializeObject<VotingResult>(votingResultContent));
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The post could not be upvoted, because an error occurred during the voting process.", exception);
+            }
+
+            // Validates that the upvote was successful
+            if (votingResult.MyScore != 1)
+                throw new NineGagException("The post could not be upvoted, because 9GAG rejected the vote. This could be because the user is not signed in.");
+        }
+
+        /// <summary>
+        /// Gives the post a vote up.
+        /// </summary>
+        public Task UpvoteAsync() => this.UpvoteAsync(new CancellationTokenSource().Token);
+
+        /// <summary>
+        /// Gives the post a vote down.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the upvoting process.</param>
+        public async Task DownvoteAsync(CancellationToken cancellationToken)
+        {
+            // Tries to send a request to 9GAG in order to downvote the post represented by this object, if the post could not be downvoted, then an exception is thrown
+            VotingResult votingResult;
+            try
+            {
+                // Sends the request to 9GAG in order to downvote the post and validates the status code
+                HttpResponseMessage responseMessage = await this.HttpClient.PostAsync(Post.downvotePath, new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["id"] = this.Id
+                }), cancellationToken);
+                responseMessage.EnsureSuccessStatusCode();
+
+                // Parses the result
+                string votingResultContent = await responseMessage.Content.ReadAsStringAsync();
+                votingResult = await Task.Run(() => JsonConvert.DeserializeObject<VotingResult>(votingResultContent));
+            }
+            catch (Exception exception)
+            {
+                throw new NineGagException("The post could not be downvoted, because an error occurred during the voting process.", exception);
+            }
+
+            // Validates that the downvoted was successful
+            if (votingResult.MyScore != -1)
+                throw new NineGagException("The post could not be downvoted, because 9GAG rejected the vote. This could be because the user is not signed in.");
+        }
+
+        /// <summary>
+        /// Gives the post a vote down.
+        /// </summary>
+        public Task DownvoteAsync() => this.DownvoteAsync(new CancellationTokenSource().Token);
+
+        #endregion
+
+        #region Nested Types
+
+        /// <summary>
+        /// Represents the result, which is returned by 9GAG when voting for a post.
+        /// </summary>
+        private class VotingResult
+        {
+            #region Public Properties
+
+            /// <summary>
+            /// Gets or sets the ID of the post for which the user voted.
+            /// </summary>
+            public string Id { get; set; }
+
+            /// <summary>
+            /// Gets or sets a message, which describes the action.
+            /// </summary>
+            public string Msg { get; set; }
+
+            /// <summary>
+            /// Gets or sets the score that the user gave to the post (in case of an upvote this should be 1, in case of a downvote this should be -1).
+            /// </summary>
+            public int MyScore { get; set; }
+
+            #endregion
+        }
 
         #endregion
     }
