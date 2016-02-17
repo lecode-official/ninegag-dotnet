@@ -46,6 +46,7 @@
     <Compile Include="SectionKind.cs" />
     <Compile Include="Content.cs" />
     <Compile Include="SubSection.cs" />
+    <Compile Include="User.cs" />
     <Compile Include="VideoPost.cs" />
   </ItemGroup>
   <ItemGroup>

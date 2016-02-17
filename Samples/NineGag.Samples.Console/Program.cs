@@ -40,6 +40,15 @@ namespace NineGag.Samples.Console
                     if (!string.IsNullOrWhiteSpace(emailAddress) && !string.IsNullOrWhiteSpace(password))
                         await nineGagClient.SignInAsync(emailAddress, password);
 
+                    // Gets the user information and welcome the user
+                    if (nineGagClient.IsUserSignedIn)
+                    {
+                        User user = await nineGagClient.GetCurrentUserAsync();
+                        System.Console.WriteLine();
+                        System.Console.WriteLine($"Welcome back, {user.FullName}!");
+                        System.Console.WriteLine();
+                    }
+
                     // Gets the first two pages of 9GAG
                     List<Page> pages = new List<Page>();
                     pages.Add(await nineGagClient.GetPostsAsync());
@@ -56,11 +65,6 @@ namespace NineGag.Samples.Console
                             System.Console.WriteLine(post.Title);
                     }
                     
-                    // Waits for a key stroke before the application is quit
-                    System.Console.WriteLine();
-                    System.Console.WriteLine("Press any key to exit...");
-                    System.Console.ReadKey();
-
                     // Signs the user out
                     await nineGagClient.SignOutAsync();
                 }
@@ -69,6 +73,11 @@ namespace NineGag.Samples.Console
             {
                 System.Console.WriteLine($"An error occurred, while retrieving the 9GAG posts: '{exception.Message}'.");
             }
+
+            // Waits for a key stroke before the application is quit
+            System.Console.WriteLine();
+            System.Console.WriteLine("Press any key to exit...");
+            System.Console.ReadKey();
         }
 
         #endregion

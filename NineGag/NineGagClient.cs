@@ -77,6 +77,16 @@ namespace NineGag
         /// </summary>
         private static readonly string freshPath = "/fresh";
 
+        /// <summary>
+        /// Contains the path to the account settings page of the currently signed in user.
+        /// </summary>
+        private static readonly string accountSettingsPath = "/settings/account";
+
+        /// <summary>
+        /// Contains the path to the profile settings page of the currently signed in user.
+        /// </summary>
+        private static readonly string profileSettingsPath = "/settings/profile";
+
         #endregion
 
         #region Private Fields
@@ -95,6 +105,11 @@ namespace NineGag
         /// Contains an HTML parser, which is used to parse the HTML retrieved from the 9GAG website.
         /// </summary>
         private readonly HtmlParser htmlParser = new HtmlParser();
+
+        /// <summary>
+        /// Contains the information about the current user. The information about the current user is loaded lazily and cached in this field.
+        /// </summary>
+        private User currentUser;
 
         #endregion
 
@@ -470,6 +485,10 @@ namespace NineGag
             }
             catch (Exception) { }
 
+            // Checks if the user was signed out successfully, in that case the user information is removed
+            if (!this.IsUserSignedIn)
+                this.currentUser = null;
+
             // Returns true if the user was signed out successfully and false otherwise
             return !this.IsUserSignedIn;
         }
@@ -479,6 +498,75 @@ namespace NineGag
         /// </summary>
         /// <returns>Returns <c>true</c> if the user was signed out successfully.</returns>
         public Task<bool> SignOutAsync() => this.SignOutAsync(new CancellationTokenSource().Token);
+
+        #endregion
+
+        #region Public User Methods
+
+        /// <summary>
+        /// Gets the information about the currently signed in user.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token, which can be used to cancel the retrieval of the user information.</param>
+        /// <exception cref="NineGagException">If the information about the currently signed in user could not be retrieved, then a <see cref="NineGagException"/> exception is thrown.</exception>
+        /// <returns>Returns the information about the current user. If the user is not signed in, then <c>null</c> is returned.</returns>
+        public async Task<User> GetCurrentUserAsync(CancellationToken cancellationToken)
+        {
+            // Checks if the current user is signed in, if not then nothing needs to be done
+            if (!this.IsUserSignedIn)
+                return null;
+
+            // Checks if the user information has already been retrieved, if not then it is fetched
+            if (this.currentUser == null)
+            {
+                // Tries to get the account and profile settings pages for the currently signed in user, if they could not be retrieved, then an exception is thrown
+                string accountSettingsPageContent = null, profileSettingsPageContent = null;
+                try
+                {
+                    HttpResponseMessage responseMessage = await this.httpClient.GetAsync(NineGagClient.accountSettingsPath, cancellationToken);
+                    responseMessage.EnsureSuccessStatusCode();
+                    accountSettingsPageContent = await responseMessage.Content.ReadAsStringAsync();
+                    responseMessage = await this.httpClient.GetAsync(NineGagClient.profileSettingsPath, cancellationToken);
+                    responseMessage.EnsureSuccessStatusCode();
+                    profileSettingsPageContent = await responseMessage.Content.ReadAsStringAsync();
+                }
+                catch (Exception exception)
+                {
+                    throw new NineGagException("The account settings page or the profile page of the currently signed in user could not be retrieved. Maybe there is no internet connection available.", exception);
+                }
+
+                // Tries to parse the HTML of the two settings pages, if the HTML could not be parsed, then an exception is thrown
+                IHtmlDocument accountSettingsPageHtmlDocument = null, profileSettingsPageHtmlDocument = null;
+                try
+                {
+                    accountSettingsPageHtmlDocument = await this.htmlParser.ParseAsync(accountSettingsPageContent);
+                    profileSettingsPageHtmlDocument = await this.htmlParser.ParseAsync(profileSettingsPageContent);
+                }
+                catch (Exception exception)
+                {
+                    throw new NineGagException("The HTML of the account settings page or the profile settings page could not be parsed. This could be an indicator, that the 9GAG website is down or its content has changed. If this problem keeps coming, then please report this problem to 9GAG or the maintainer of the library.", exception);
+                }
+
+                // Tries to parse the user information, if the user information could not be parsed, then an exception is thrown
+                try
+                {
+                    this.currentUser = User.FromHtml(accountSettingsPageHtmlDocument, profileSettingsPageHtmlDocument);
+                }
+                catch (Exception exception)
+                {
+                    throw new NineGagException("The information about the currently signed in user could not be parsed. This could be an indicator, that the 9GAG website is down or its content has changed. If this problem keeps coming, then please report this problem to 9GAG or the maintainer of the library.", exception);
+                }
+            }
+
+            // Returns the information about the currently signed in user
+            return this.currentUser;
+        }
+
+        /// <summary>
+        /// Gets the information about the currently signed in user.
+        /// </summary>
+        /// <exception cref="NineGagException">If the information about the currently signed in user could not be retrieved, then a <see cref="NineGagException"/> exception is thrown.</exception>
+        /// <returns>Returns the information about the current user. If the user is not signed in, then <c>null</c> is returned.</returns>
+        public Task<User> GetCurrentUserAsync() => this.GetCurrentUserAsync(new CancellationTokenSource().Token);
 
         #endregion
 
