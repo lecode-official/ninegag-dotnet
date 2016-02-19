@@ -28,37 +28,99 @@ package). Just clone the Git repository, open the solution in Visual Studio, and
 git pull https://github.com/lecode-official/ninegag-dotnet.git
 ```
 
-## Sample
+## Samples
 
-This is how it is to retrieve pages and posts from 9GAG:
+The central class in 9GAG.NET is `NineGagClient`, it implements the `IDisposable` interface, so always make sure, that you are using the `using`-statement or call
+`Dispose` by hand.
 
 ```csharp
-// Creates a new 9GAG client and tries to access the 9GAG posts
+using (NineGagClient nineGagClient = new NineGagClient())
+{
+}
+```
+
+This is is how you retrieve posts form 9GAG. The result of retrieving posts is always a page of 10 posts. Alls calls to 9GAG may throw exceptions, so make sure to
+always wrap you calls in a `try`-`catch`-statement:
+
+```csharp
 try
 {
-    using (NineGagClient nineGagClient = new NineGagClient())
+    Page page = await nineGagClient.GetPostsAsync();
+}
+catch (NineGagException) { }
+```
+
+You can retrieve the next page by passing the retrieved page as a parameter to `GetPostsAsync`:
+
+```csharp
+try
+{
+    Page nextPage = await nineGagClient.GetPostsAsync(page);
+}
+catch (NineGagException) { }
+```
+
+You can also retrieve posts by actuality:
+
+```csharp
+try
+{
+    Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
+}
+catch (NineGagException) { }
+```
+
+Or by section and sub-section:
+
+```csharp
+try
+{
+    IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
+    Page page = await nineGagClient.GetPostsAsync(sections.First());
+    Page subSectionPage = await nineGagClient.GetPostsAsync(sections.First(), SubSection.Fresh);
+}
+catch (NineGagException) { }
+```
+
+You can also sign in to 9GAG and upvote/downvote posts:
+
+```csharp
+try
+{
+    if (await nineGagClient.SignInAsync("UserName", "Password"))
     {
-        // Gets the first two pages of 9GAG
-        List<Page> pages = new List<Page>();
-        pages.Add(await nineGagClient.GetPostsAsync());
-        pages.Add(await nineGagClient.GetPostsAsync(pages.Last()));
-
-        // Prints all the retrieved pages
-        foreach (Page page in pages)
-        {
-            System.Console.WriteLine();
-            System.Console.WriteLine($"Page {pages.IndexOf(page) + 1}");
-            System.Console.WriteLine();
-
-            foreach (Post post in page.Posts)
-                System.Console.WriteLine(post.Title);
-        }
+        Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
+        await page.Posts.First().UpvoteAsync();
+        await page.Posts.Last().DownvoteAsync();
+        await page.SignOutAsync();
     }
 }
-catch (NineGagException exception)
+catch (NineGagException) { }
+```
+
+When you are signed in, then you can retrieve some information about the user:
+
+```csharp
+try
 {
-    System.Console.WriteLine($"An error occurred, while retrieving the 9GAG posts: '{exception.Message}'.");
+    if (await nineGagClient.SignInAsync("UserName", "Password"))
+    {
+        User user = await nineGagClient.GetCurrentUserAsync();
+        await page.SignOutAsync();
+    }
 }
+catch (NineGagException) { }
+```
+
+All methods in the `NineGagClient` are asynchronous an can be cancelled:
+
+```csharp
+try
+{
+    CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    Page page = await nineGagClient.GetPostsAsync(PostActuality.Hot, cancellationTokenSource.Token);
+}
+catch (NineGagException) { }
 ```
 
 ## Contributions
