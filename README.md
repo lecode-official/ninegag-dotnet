@@ -78,7 +78,7 @@ if (await nineGagClient.SignInAsync("UserName", "Password"))
     Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
     await page.Posts.First().UpvoteAsync();
     await page.Posts.Last().DownvoteAsync();
-    await page.SignOutAsync();
+    await nineGagClient.SignOutAsync();
 }
 ```
 
@@ -88,7 +88,7 @@ When you are signed in, then you can retrieve some information about the user:
 if (await nineGagClient.SignInAsync("UserName", "Password"))
 {
     User user = await nineGagClient.GetCurrentUserAsync();
-    await page.SignOutAsync();
+    await nineGagClient.SignOutAsync();
 }
 ```
 
