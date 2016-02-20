@@ -53,74 +53,50 @@ catch (NineGagException) { }
 You can retrieve the next page by passing the retrieved page as a parameter to `GetPostsAsync`:
 
 ```csharp
-try
-{
-    Page nextPage = await nineGagClient.GetPostsAsync(page);
-}
-catch (NineGagException) { }
+Page nextPage = await nineGagClient.GetPostsAsync(page);
 ```
 
 You can also retrieve posts by actuality:
 
 ```csharp
-try
-{
-    Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
-}
-catch (NineGagException) { }
+Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
 ```
 
 Or by section and sub-section:
 
 ```csharp
-try
-{
-    IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
-    Page page = await nineGagClient.GetPostsAsync(sections.First());
-    Page subSectionPage = await nineGagClient.GetPostsAsync(sections.First(), SubSection.Fresh);
-}
-catch (NineGagException) { }
+IEnumerable<Section> sections = await nineGagClient.GetSectionsAsync();
+Page page = await nineGagClient.GetPostsAsync(sections.First());
+Page subSectionPage = await nineGagClient.GetPostsAsync(sections.First(), SubSection.Fresh);
 ```
 
 You can also sign in to 9GAG and upvote/downvote posts:
 
 ```csharp
-try
+if (await nineGagClient.SignInAsync("UserName", "Password"))
 {
-    if (await nineGagClient.SignInAsync("UserName", "Password"))
-    {
-        Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
-        await page.Posts.First().UpvoteAsync();
-        await page.Posts.Last().DownvoteAsync();
-        await page.SignOutAsync();
-    }
+    Page page = await nineGagClient.GetPostsAsync(PostActuality.Trending);
+    await page.Posts.First().UpvoteAsync();
+    await page.Posts.Last().DownvoteAsync();
+    await page.SignOutAsync();
 }
-catch (NineGagException) { }
 ```
 
 When you are signed in, then you can retrieve some information about the user:
 
 ```csharp
-try
+if (await nineGagClient.SignInAsync("UserName", "Password"))
 {
-    if (await nineGagClient.SignInAsync("UserName", "Password"))
-    {
-        User user = await nineGagClient.GetCurrentUserAsync();
-        await page.SignOutAsync();
-    }
+    User user = await nineGagClient.GetCurrentUserAsync();
+    await page.SignOutAsync();
 }
-catch (NineGagException) { }
 ```
 
 All methods in the `NineGagClient` are asynchronous an can be cancelled:
 
 ```csharp
-try
-{
-    CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-    Page page = await nineGagClient.GetPostsAsync(PostActuality.Hot, cancellationTokenSource.Token);
-}
-catch (NineGagException) { }
+CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+Page page = await nineGagClient.GetPostsAsync(PostActuality.Hot, cancellationTokenSource.Token);
 ```
 
 ## Contributions
