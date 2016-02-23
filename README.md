@@ -25,7 +25,7 @@ package). Just clone the Git repository, open the solution in Visual Studio, and
 
 
 ```batch
-git pull https://github.com/lecode-official/ninegag-dotnet.git
+git clone https://github.com/lecode-official/ninegag-dotnet
 ```
 
 ## Samples
