@@ -19,13 +19,13 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>NineGag</Id>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <Title>9GAG.NET</Title>
     <Authors>David Neumann</Authors>
     <Owners>David Neumann</Owners>
     <Summary>9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages.</Summary>
     <Description>9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages. Since 9GAG does not seem to have an official API, this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes it really simple to get all the posts from 9GAG. The library is also fully asynchronous and available for a lot of platforms.</Description>
-    <ReleaseNotes>Now information about the currently signed in user can be retrieved and signed in users are able to upvote and downvote posts.</ReleaseNotes>
+    <ReleaseNotes>Added the XML documentation, so that Intellisense provides more information to the user.</ReleaseNotes>
     <ProjectUrl>https://github.com/lecode-official/ninegag-dotnet</ProjectUrl>
     <LicenseUrl>https://raw.githubusercontent.com/lecode-official/ninegag-dotnet/master/LICENSE</LicenseUrl>
     <Copyright>Copyright 2016 © David Neumann</Copyright>
