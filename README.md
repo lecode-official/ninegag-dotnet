@@ -1,37 +1,24 @@
 # 9GAG.NET
 
-![9GAG.NET Logo](https://github.com/lecode-official/ninegag-dotnet/blob/master/Documentation/Images/Banner.png "9GAG.NET Logo")
+![9GAG.NET Logo](https://github.com/lecode-official/ninegag-dotnet/blob/master/documentation/images/logo-banner.png "9GAG.NET Logo")
 
 > *"9GAG has the best funny pics, GIFs, videos, memes, cute, wtf, geeky, cosplay photos on the web. 9GAG is your best source of fun."*
 >
 > &mdash; [9GAG.com](http://9gag.com/)
 
-9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages. Since 9GAG does not seem to have an official API,
-this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes
-it really simple to get all the posts from 9GAG. The library is also fully asynchronous and available for a lot of platforms.
+9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages. Since 9GAG does not seem to have an official API, this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes it really simple to get all the posts from 9GAG. The library is also fully asynchronous and available for a lot of platforms.
 
 ## Using the Project
 
-The project is available on NuGet: https://www.nuget.org/packages/NineGag/.
+The project is available on [NuGet](https://www.nuget.org/packages/NineGag/).
 
 ```batch
 PM> Install-Package NineGag
 ```
 
-If you want to you can download and manually build the solution. The project was built using Visual Studio 2015. Basically any version of Visual Studio 2015 will
-suffice, no extra plugins or tools are needed (except for the `NineGag.nuproj` project, which needs the
-[NuBuild Project System](https://visualstudiogallery.msdn.microsoft.com/3efbfdea-7d51-4d45-a954-74a2df51c5d0) Visual Studio extension for building the NuGet
-package). Just clone the Git repository, open the solution in Visual Studio, and build the solution.
-
-
-```batch
-git clone https://github.com/lecode-official/ninegag-dotnet
-```
-
 ## Samples
 
-The central class in 9GAG.NET is `NineGagClient`, it implements the `IDisposable` interface, so always make sure, that you are using the `using`-statement or call
-`Dispose` by hand.
+The central class in 9GAG.NET is `NineGagClient`, it implements the `IDisposable` interface, so always make sure, that you are using the `using`-statement or call `Dispose` by hand.
 
 ```csharp
 using (NineGagClient nineGagClient = new NineGagClient())
@@ -39,8 +26,7 @@ using (NineGagClient nineGagClient = new NineGagClient())
 }
 ```
 
-This is is how you retrieve posts form 9GAG. The result of retrieving posts is always a page of 10 posts. Alls calls to 9GAG may throw exceptions, so make sure to
-always wrap you calls in a `try`-`catch`-statement:
+This is is how you retrieve posts form 9GAG. The result of retrieving posts is always a page of 10 posts. Alls calls to 9GAG may throw exceptions, so make sure to always wrap you calls in a `try`-`catch`-statement:
 
 ```csharp
 try
@@ -101,5 +87,4 @@ Page page = await nineGagClient.GetPostsAsync(PostActuality.Hot, cancellationTok
 
 ## Contributions
 
-Currently I am not accepting any contributors, but if you want to help, I would greatly appreciate feedback and bug reports. To file a bug, please
-use GitHub's issue system. Alternatively, you can clone the repository and send me a pull request.
+Currently I am not accepting any contributors, but if you want to help, I would greatly appreciate feedback and bug reports. To file a bug, please use GitHub's issue system. Alternatively, you can clone the repository and send me a pull request.

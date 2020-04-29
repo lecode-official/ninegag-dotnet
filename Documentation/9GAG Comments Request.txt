@@ -1,4 +1,0 @@
-GET http://comment-cdn.9gag.com/v1/cacheable/comment-list.json?appId=a_dd8f2b7d304a10edaf6f29517ea0ca4100a43d1b&url=http%3A%2F%2F9gag.com%2Fgag%2FaQ8z0Yq&count=10&level=2&order=score HTTP/1.1
-User-Agent: Fiddler
-Host: comment-cdn.9gag.com
-

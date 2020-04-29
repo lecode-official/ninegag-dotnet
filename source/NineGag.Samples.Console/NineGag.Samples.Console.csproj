@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Authors>David Neumann</Authors>
+    <Product>9GAG.NET - A simple library for accessing 9GAG from managed languages</Product>
+    <Description>9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from managed languages. Since 9GAG does not seem to have an official API, this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes it really simple to get all the posts from 9GAG.</Description>
+    <Copyright>2016-2020 David Neumann</Copyright>
+    <PackageTags>9GAG</PackageTags>
+    <PackageProjectUrl>https://github.com/lecode-official/ninegag-dotnet</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/lecode-official/ninegag-dotnet/master/documentation/images/Logo128x128.png</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/lecode-official/ninegag-dotnet/master/LICENSE</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NineGag\NineGag.csproj" />
+  </ItemGroup>
+</Project>
