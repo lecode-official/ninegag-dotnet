@@ -1,5 +1,7 @@
 # 9GAG.NET
 
+> **WARNING!** Currently the 9GAG.NET library is being completely rewritten due to changes in the way the 9GAG website works. This means that, for now, the library is broken.
+
 ![9GAG.NET Logo](https://github.com/lecode-official/ninegag-dotnet/blob/master/documentation/images/logo-banner.png "9GAG.NET Logo")
 
 > *"9GAG has the best funny pics, GIFs, videos, memes, cute, wtf, geeky, cosplay photos on the web. 9GAG is your best source of fun."*
