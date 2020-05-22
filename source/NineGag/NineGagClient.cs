@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,7 +67,7 @@ namespace NineGag
         /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the sections.</param>
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the sections, a <see cref="NineGagException"/> is thrown.</exception>
         /// <returns>Returns a list of all the sections that are currently available on 9GAG.</returns>
-        public async Task<IEnumerable<Section>> GetSectionsAsync(CancellationToken cancellationToken)
+        public async Task<IEnumerable<Section>> GetSectionsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // Downloads the 9GAG index page, which, among other things, contains the links to all sections
             using (IDocument document = await this.browsingContext.OpenAsync(NineGagClient.baseUrl, cancellationToken))
@@ -132,40 +131,20 @@ namespace NineGag
         }
 
         /// <summary>
-        /// Gets all the sections of 9GAG. Sections are like categories and contain the actual content.
-        /// </summary>
-        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the sections, a <see cref="NineGagException"/> is thrown.</exception>
-        /// <returns>Returns a list of all the sections that are currently available on 9GAG.</returns>
-        public Task<IEnumerable<Section>> GetSectionsAsync() => this.GetSectionsAsync(CancellationToken.None);
-
-        /// <summary>
         /// Gets the posts of the specified section.
         /// </summary>
         /// <param name="section">The section for which the posts are to be retrieved.</param>
         /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
         /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the posts, a <see cref="NineGagException"/> is thrown.</exception>
         /// <returns>Returns a list of all the posts of the specified section.</returns>
-        public async Task<IEnumerable<string>> GetPostsAsync(Section section, CancellationToken cancellationToken)
+        public async Task<IEnumerable<string>> GetPostsAsync(Section section, CancellationToken cancellationToken = default(CancellationToken))
         {
             // https://9gag.com/v1/group-posts/group/funny/kind/hot?after=a8GW4mY%2Can4Y1XB%2CaXgbwbV&c=10
 
             List<string> posts = new List<string>();
 
-            using (IDocument document = await this.browsingContext.OpenAsync(section.Url, cancellationToken))
-            {
-                System.IO.File.WriteAllText("index.html", document.ToHtml());
-            }
-
             return posts;
         }
-
-        /// <summary>
-        /// Gets the posts of the specified section.
-        /// </summary>
-        /// <param name="section">The section for which the posts are to be retrieved.</param>
-        /// <exception cref="NineGagException">If anything goes wrong during the retrieval of the posts, a <see cref="NineGagException"/> is thrown.</exception>
-        /// <returns>Returns a list of all the posts of the specified section.</returns>
-        public Task<IEnumerable<string>> GetPostsAsync(Section section) => this.GetPostsAsync(section, CancellationToken.None);
 
         #endregion
 
