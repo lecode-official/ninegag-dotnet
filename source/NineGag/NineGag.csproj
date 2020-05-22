@@ -1,0 +1,47 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Target Framework -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Assembly Info -->
+  <PropertyGroup>
+    <AssemblyTitle>9GAG.NET</AssemblyTitle>
+    <Version>0.3.0</Version>
+    <Copyright>Copyright © 2016-2020 David Neumann</Copyright>
+    <Product>9GAG.NET - A simple library for accessing 9GAG from .NET</Product>
+    <Description>9GAG.NET is a simple, lightweight, and portable library for accessing 9GAG from .NET. Since 9GAG does not seem to have an official API, this library is essentially parsing the 9GAG website and extracts all the useful information. It abstracts away all the nasty HTML parsing and makes it really simple to get all the posts from 9GAG.</Description>
+  </PropertyGroup>
+
+  <!-- NuGet Info -->
+  <PropertyGroup>
+    <Title>9GAG.NET</Title>
+    <Authors>David Neumann</Authors>
+    <PackageId>NineGag</PackageId>
+    <PackageTags>9GAG</PackageTags>
+    <PackageReleaseNotes>A complete rewrite of the original library.</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/lecode-official/ninegag-dotnet</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/lecode-official/ninegag-dotnet/master/documentation/images/logo-64x64.png</PackageIconUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!-- General Assembly Properties -->
+  <PropertyGroup>
+    <RootNamespace>NineGag</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- The license file that is added to the NuGet package -->
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="$(PackageLicenseFile)" />
+  </ItemGroup>
+
+  <!-- References NuGet Packages -->
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="0.14.0" />
+  </ItemGroup>
+</Project>

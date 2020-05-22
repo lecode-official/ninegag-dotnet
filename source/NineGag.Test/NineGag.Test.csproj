@@ -1,0 +1,29 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Target Framework -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Assembly Info -->
+  <PropertyGroup>
+    <AssemblyTitle>9GAG.NET Test Application</AssemblyTitle>
+    <Version>0.3.0</Version>
+    <Copyright>Copyright © 2016-2020 David Neumann</Copyright>
+    <Product>9GAG.NET - A simple library for accessing 9GAG from .NET</Product>
+    <Description>A simple test application for 9GAG.NET.</Description>
+  </PropertyGroup>
+
+  <!-- General Assembly Properties -->
+  <PropertyGroup>
+    <RootNamespace>NineGag.Test</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- References Projects -->
+  <ItemGroup>
+    <ProjectReference Include="..\NineGag\NineGag.csproj" />
+  </ItemGroup>
+</Project>
