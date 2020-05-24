@@ -1,7 +1,7 @@
 
 #region Using Directives
 
-using AngleSharp;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -12,50 +12,56 @@ namespace NineGag
     /// </summary>
     public class Section
     {
-        #region Constructors
-
-        /// <summary>
-        /// Initializes a new <see cref="Section"/> instance. This constructor is internal, because only the <see cref="NineGagClient"/> should instantiate sections.
-        /// </summary>
-        /// <param name="name">The name of the section.</param>
-        /// <param name="description">The description of the section's content.</param>
-        /// <param name="iconUrl">The URL to the icon of the section.</param>
-        /// <param name="url">The URL of the section.</param>
-        internal Section(string name, string description, string iconUrl, Url url)
-        {
-            this.Name = name;
-            this.Description = description;
-            this.IconUrl = iconUrl;
-            this.Url = url;
-        }
-
-        #endregion
-
-        #region Internal Properties
-
-        /// <summary>
-        /// Gets the URL of the section.
-        /// </summary>
-        internal Url Url { get; private set; }
-
-        #endregion
-
         #region Public Properties
 
         /// <summary>
         /// Gets the name of the section.
         /// </summary>
+        [JsonProperty("name")]
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets the URL of the section.
+        /// </summary>
+        [JsonProperty("url")]
+        public string Url { get; private set; }
 
         /// <summary>
         /// Gets a description of the section's content.
         /// </summary>
+        [JsonProperty("description")]
         public string Description { get; private set; }
 
         /// <summary>
-        /// Gets the URL to the icon of the section.
+        /// Gets the URL to the JPEG version of the icon of the section.
         /// </summary>
-        public string IconUrl { get; private set; }
+        [JsonProperty("ogImageUrl")]
+        public string ImageUrl { get; private set; }
+
+        /// <summary>
+        /// Gets the URL to the WebP version of the icon of the section.
+        /// </summary>
+        [JsonProperty("ogWebpUrl")]
+        public string WebpImageUrl { get; private set; }
+
+        /// <summary>
+        /// Gets a value that determines whether users are allowed to upload content to this section.
+        /// </summary>
+        [JsonProperty("userUploadEnabled")]
+        public bool IsUserUploadEnabled { get; private set; }
+
+        /// <summary>
+        /// Gets a value that determines whether the section contains sensitive content.
+        /// </summary>
+        [JsonProperty("isSensitive")]
+        public bool IsSensitive { get; private set; }
+
+        /// <summary>
+        /// Gets the location code if the section is a local section. There are section on 9GAG for most countries/regions in the world,
+        /// this is the code corresponding to that country/region. When this is not a local section, then the location is an empty string.
+        /// </summary>
+        [JsonProperty("location")]
+        public string Location { get; private set; }
 
         #endregion
 
