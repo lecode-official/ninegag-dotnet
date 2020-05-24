@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,6 +35,8 @@ namespace NineGag
                 CookieContainer = cookieContainer,
                 AllowAutoRedirect = false
             });
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent", $"9GAG.NET/{Assembly.GetEntryAssembly().GetName().Version}");
+            this.httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
             this.httpClient.BaseAddress = NineGagClient.baseUrl;
         }
 
@@ -49,6 +53,11 @@ namespace NineGag
         /// Contains the root path of the website.
         /// </summary>
         private static readonly string rootPath = "/";
+
+        /// <summary>
+        /// Contains the path of the 9GAG API to retrieve posts.
+        /// </summary>
+        private static readonly string postsPath = "/v1/group-posts/group/{0}/type/{1}";
 
         #endregion
 
@@ -76,6 +85,69 @@ namespace NineGag
 
         #endregion
 
+        #region Private Methods
+
+        /// <summary>
+        /// Gets the posts of the specified section and post kind.
+        /// </summary>
+        /// <param name="section">The ID of the section from which the posts are to be retrieved.</param>
+        /// <param name="postKind">
+        /// The post kind, which can either be "hot", "trending", or "fresh". The value trending is only allowed for the "default" section.
+        /// </param>
+        /// <param name="count">The number of posts that are to be retrieved.</param>
+        /// <param name="cursor">
+        /// The cursor from the previous call to the API. The cursor uniquely identifies the last post from the previous request and can be
+        /// used to get the next batch of posts after that. This can be used for paging or infinite scrolling.
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
+        /// <exception cref="NineGagException">
+        /// If anything goes wrong during the retrieval of the posts, a <see cref="NineGagException"/> is thrown.
+        /// </exception>
+        /// <returns>Returns the retrieved posts.</returns>
+        private async Task<IEnumerable<Post>> GetPostsAsync(
+            string section,
+            string postKind,
+            int count,
+            string cursor,
+            CancellationToken cancellationToken)
+        {
+            // Makes a request to the 9GAG API to retrieve the posts
+            string postsContent;
+            try
+            {
+                // Generates the path to the posts of the specified section and post kind
+                string path = string.Format(CultureInfo.InvariantCulture, NineGagClient.postsPath, section, postKind);
+
+                // Prepares the query parameters for the request
+                Dictionary<string, string> parameters = new Dictionary<string, string>();
+                parameters.Add("c", count.ToString());
+                if (!string.IsNullOrWhiteSpace(cursor))
+                    parameters.Add("after", cursor);
+                string queryParameters = string.Join("&", parameters.Select(keyValuePair => $"{keyValuePair.Key}={keyValuePair.Value}"));
+
+                // Makes the request to the API to retrieve the posts
+                HttpResponseMessage responseMessage = await this.httpClient.GetAsync(
+                    $"{path}?{queryParameters}",
+                    cancellationToken
+                );
+                responseMessage.EnsureSuccessStatusCode();
+                postsContent = await responseMessage.Content.ReadAsStringAsync();
+            }
+            catch (HttpRequestException exception)
+            {
+                throw new NineGagException("The 9GAG posts could not be retrieved.", exception);
+            }
+
+            // Parses the JSON containing the posts and returns them
+            JObject posts = JObject.Parse(postsContent);
+            return posts["data"]["posts"]
+                .Children()
+                .Select(post => post.ToObject<Post>())
+                .ToList();
+        }
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -85,7 +157,7 @@ namespace NineGag
         /// <exception cref="NineGagException">
         /// If anything goes wrong during the retrieval of the sections, a <see cref="NineGagException"/> is thrown.
         /// </exception>
-        /// <returns>Returns a list of all the sections that are currently available on 9GAG.</returns>
+        /// <returns>Returns all the sections that are currently available on 9GAG.</returns>
         public async Task<SectionResult> GetSectionsAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // Retrieves the index page of the 9GAG website, which contains a complete list of all the sections of 9GAG
@@ -96,9 +168,9 @@ namespace NineGag
                 responseMessage.EnsureSuccessStatusCode();
                 indexPageContent = await responseMessage.Content.ReadAsStringAsync();
             }
-            catch (Exception exception)
+            catch (HttpRequestException exception)
             {
-                throw new NineGagException("The 9GAG main page could not be retrieved.", exception);
+                throw new NineGagException("The sections could not be retrieved.", exception);
             }
 
             // Retrieves the 9GAG configuration (including the sections) from the server
@@ -131,24 +203,40 @@ namespace NineGag
         }
 
         /// <summary>
-        /// Gets the posts of the specified section.
+        /// Gets the hot posts.
         /// </summary>
-        /// <param name="section">The section for which the posts are to be retrieved.</param>
         /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
         /// <exception cref="NineGagException">
         /// If anything goes wrong during the retrieval of the posts, a <see cref="NineGagException"/> is thrown.
         /// </exception>
-        /// <returns>Returns a list of all the posts of the specified section.</returns>
-        public async Task<IEnumerable<string>> GetPostsAsync(
-            Section section,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            // https://9gag.com/v1/group-posts/group/funny/kind/hot?after=a8GW4mY%2Can4Y1XB%2CaXgbwbV&c=10
+        /// <returns>Returns the retrieved hot posts.</returns>
+        public Task<IEnumerable<Post>> GetHotPostsAsync(
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => this.GetPostsAsync("default", "hot", 10, null, cancellationToken);
 
-            List<string> posts = new List<string>();
+        /// <summary>
+        /// Gets the trending posts.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
+        /// <exception cref="NineGagException">
+        /// If anything goes wrong during the retrieval of the posts, a <see cref="NineGagException"/> is thrown.
+        /// </exception>
+        /// <returns>Returns the retrieved trending posts.</returns>
+        public Task<IEnumerable<Post>> GetTrendingPostsAsync(
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => this.GetPostsAsync("default", "trending", 10, null, cancellationToken);
 
-            return posts;
-        }
+        /// <summary>
+        /// Gets the fresh posts.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token, which can be used to cancel the retrieval of the posts.</param>
+        /// <exception cref="NineGagException">
+        /// If anything goes wrong during the retrieval of the posts, a <see cref="NineGagException"/> is thrown.
+        /// </exception>
+        /// <returns>Returns the retrieved fresh posts.</returns>
+        public Task<IEnumerable<Post>> GetFreshPostsAsync(
+            CancellationToken cancellationToken = default(CancellationToken)
+        ) => this.GetPostsAsync("default", "fresh", 10, null, cancellationToken);
 
         #endregion
 
