@@ -9,8 +9,6 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AngleSharp;
-using AngleSharp.Dom;
 using Newtonsoft.Json.Linq;
 
 #endregion
@@ -45,7 +43,7 @@ namespace NineGag
         /// <summary>
         /// Contains the base URL of 9GAG.
         /// </summary>
-        private static readonly Url baseUrl = new Url("https://9gag.com");
+        private static readonly Uri baseUrl = new Uri("https://9gag.com", UriKind.Absolute);
 
         /// <summary>
         /// Contains the root path of the website.
