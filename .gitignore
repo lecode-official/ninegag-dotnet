@@ -9,3 +9,7 @@ obj
 # Ignores OS generated files
 .DS_Store
 Thumbs.db
+
+# Ignores downloaded JSON or HTML files
+*.html
+*.json

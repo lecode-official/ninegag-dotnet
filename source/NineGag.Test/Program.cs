@@ -24,7 +24,7 @@ namespace NineGag.Test
             // Creates a new 9GAG client, retrieves all sections, and prints the posts of the first section
             using (NineGagClient client = new NineGagClient())
             {
-                foreach (Post post in await client.GetTrendingPostsAsync())
+                foreach (Post post in await client.GetHotPostsAsync())
                     Console.WriteLine(post.Title);
             }
         }
