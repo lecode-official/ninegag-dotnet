@@ -3,6 +3,7 @@
 
 using System;
 using Newtonsoft.Json;
+using NineGag.Serialization;
 
 #endregion
 
@@ -59,9 +60,10 @@ namespace NineGag
 
         /// <summary>
         /// Gets the location code if the section is a local section. There are section on 9GAG for most countries/regions in the world,
-        /// this is the code corresponding to that country/region. When this is not a local section, then the location is an empty string.
+        /// this is the code corresponding to that country/region. When this is not a local section, then the location is <c>null</c>.
         /// </summary>
         [JsonProperty("location")]
+        [JsonConverter(typeof(EmptyStringToNullConverter))]
         public string Location { get; internal set; }
 
         #endregion
