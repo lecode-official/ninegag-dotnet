@@ -194,8 +194,8 @@ namespace NineGag
 
             // Parses the different categories of sections
             IEnumerable<Section> sections = parseSections("sections");
-            IEnumerable<Section> featuredSections = parseSections("sections");
-            IEnumerable<Section> localSections = parseSections("sections");
+            IEnumerable<Section> featuredSections = parseSections("featuredSections");
+            IEnumerable<Section> localSections = parseSections("localSections");
             Section currentLocalSection = configuration["page"]["geoSection"].ToObject<Section>();
 
             // Returns the sections
